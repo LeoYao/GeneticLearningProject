@@ -1,19 +1,24 @@
 
 public class Protein {
 	private int k; //num mutations
-	private char[] seq;
+	private String aminoAcidsequence;
 	
-	public Protein(char[] seq){
+	public Protein(String seq){
 		setK(0);
-		this.seq = seq;
+		this.aminoAcidsequence = seq;
+	}
+	
+	public Protein(){
+		k = 0;
+		aminoAcidsequence = "";
 	}
 
-	public char[] getSeq() {
-		return seq;
+	public String getAminoAcidsequence() {
+		return aminoAcidsequence;
 	}
 
-	public void setSeq(char[] seq) {
-		this.seq = seq;
+	public void setAminoAcidsequence(String seq) {
+		this.aminoAcidsequence = seq;
 	}
 
 	public int getK() {
@@ -22,6 +27,10 @@ public class Protein {
 
 	public void setK(int k) {
 		this.k = k;
+	}
+	
+	public void append(String append){
+		this.aminoAcidsequence += append;
 	}
 
 }
