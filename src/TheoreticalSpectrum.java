@@ -1,17 +1,17 @@
 public class TheoreticalSpectrum {
-	private static final double WATER_MASS = 18.0;
-	private static final double AMONIA_MASS = 17.0;
+	protected static final double WATER_MASS = 18.0;
+	protected static final double AMONIA_MASS = 17.0;
 
-	private String seq;
-	private TheoreticalSpectralPeak b[];
-	private TheoreticalSpectralPeak bLessWater[];
-	private TheoreticalSpectralPeak bLessAmmonia[];
-	private TheoreticalSpectralPeak bLessBoth[];
+	protected String seq;
+	protected TheoreticalSpectralPeak b[];
+	protected TheoreticalSpectralPeak bLessWater[];
+	protected TheoreticalSpectralPeak bLessAmmonia[];
+	protected TheoreticalSpectralPeak bLessBoth[];
 
-	private TheoreticalSpectralPeak y[];
-	private TheoreticalSpectralPeak yLessWater[];
-	private TheoreticalSpectralPeak yLessAmmonia[];
-	private TheoreticalSpectralPeak yLessBoth[];
+	protected TheoreticalSpectralPeak y[];
+	protected TheoreticalSpectralPeak yLessWater[];
+	protected TheoreticalSpectralPeak yLessAmmonia[];
+	protected TheoreticalSpectralPeak yLessBoth[];
 
 	public TheoreticalSpectrum(String seq) {
 		this.seq = seq;
@@ -32,21 +32,23 @@ public class TheoreticalSpectrum {
 			char[] bString = seq.substring(0, i).toCharArray();
 			char[] yString = seq.substring(i + 1, seq.length() - 1)
 					.toCharArray();
-			b[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(bString), 0.0);
-			bLessWater[i - 1] = new TheoreticalSpectralPeak(0.0, b[i - 1].getAvg()
-					- WATER_MASS, 0.0);
-			bLessAmmonia[i - 1] = new TheoreticalSpectralPeak(0.0, b[i - 1].getAvg()
-					- AMONIA_MASS, 0.0);
-			bLessBoth[i - 1] = new TheoreticalSpectralPeak(0.0, b[i - 1].getAvg()
-					- WATER_MASS - AMONIA_MASS, 0.0);
+			b[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(bString),
+					0.0);
+			bLessWater[i - 1] = new TheoreticalSpectralPeak(0.0,
+					b[i - 1].getAvg() - WATER_MASS, 0.0);
+			bLessAmmonia[i - 1] = new TheoreticalSpectralPeak(0.0,
+					b[i - 1].getAvg() - AMONIA_MASS, 0.0);
+			bLessBoth[i - 1] = new TheoreticalSpectralPeak(0.0,
+					b[i - 1].getAvg() - WATER_MASS - AMONIA_MASS, 0.0);
 
-			y[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(yString), 0.0);
-			yLessWater[i - 1] = new TheoreticalSpectralPeak(0.0, y[i - 1].getAvg()
-					- WATER_MASS, 0.0);
-			yLessAmmonia[i - 1] = new TheoreticalSpectralPeak(0.0, y[i - 1].getAvg()
-					- AMONIA_MASS, 0.0);
-			yLessBoth[i - 1] = new TheoreticalSpectralPeak(0.0, y[i - 1].getAvg()
-					- WATER_MASS - AMONIA_MASS, 0.0);
+			y[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(yString),
+					0.0);
+			yLessWater[i - 1] = new TheoreticalSpectralPeak(0.0,
+					y[i - 1].getAvg() - WATER_MASS, 0.0);
+			yLessAmmonia[i - 1] = new TheoreticalSpectralPeak(0.0,
+					y[i - 1].getAvg() - AMONIA_MASS, 0.0);
+			yLessBoth[i - 1] = new TheoreticalSpectralPeak(0.0,
+					y[i - 1].getAvg() - WATER_MASS - AMONIA_MASS, 0.0);
 		}
 	}
 
@@ -96,13 +98,67 @@ public class TheoreticalSpectrum {
 		}
 		return mass;
 	}
-	
-	public double scoreSinglePeak(double[] peaks, int scorePeakIndex){
-		return 0.0;
+
+	public double findClosestMatchingPeak(double experimentalPeak) {
+		double tolerance = 10.0;
+		double closestMatch = 0.0;
+		double distance = experimentalPeak - closestMatch;
+		for (int i = 1; i < (seq.length() - 1); i++) {
+
+			if (Math.abs(b[i - 1].getAvg() - experimentalPeak) < distance) {
+				closestMatch = b[i - 1].getAvg();
+				distance = experimentalPeak - closestMatch;
+			}
+
+			if (Math.abs(bLessWater[i - 1].getAvg() - experimentalPeak) < distance) {
+				closestMatch = bLessWater[i - 1].getAvg();
+				distance = experimentalPeak - closestMatch;
+			}
+
+			if (Math.abs(bLessAmmonia[i - 1].getAvg() - experimentalPeak) < distance) {
+				closestMatch = bLessAmmonia[i - 1].getAvg();
+				distance = experimentalPeak - closestMatch;
+			}
+
+			if (Math.abs(bLessBoth[i - 1].getAvg() - experimentalPeak) < distance) {
+				closestMatch = bLessBoth[i - 1].getAvg();
+				distance = experimentalPeak - closestMatch;
+			}
+
+			if (Math.abs(y[i - 1].getAvg() - experimentalPeak) < distance) {
+				closestMatch = y[i - 1].getAvg();
+				distance = experimentalPeak - closestMatch;
+			}
+
+			if (Math.abs(yLessWater[i - 1].getAvg() - experimentalPeak) < distance) {
+				closestMatch = yLessWater[i - 1].getAvg();
+				distance = experimentalPeak - closestMatch;
+			}
+
+			if (Math.abs(yLessAmmonia[i - 1].getAvg() - experimentalPeak) < distance) {
+				closestMatch = yLessAmmonia[i - 1].getAvg();
+				distance = experimentalPeak - closestMatch;
+			}
+
+			if (Math.abs(yLessBoth[i - 1].getAvg() - experimentalPeak) < distance) {
+				closestMatch = yLessBoth[i - 1].getAvg();
+				distance = experimentalPeak - closestMatch;
+			}
+		}
+		return closestMatch;
 	}
-	
-	public double scoreAllPeaks(double[] peaks, int scorePeakIndex){
-		return 0.0;
+
+	public double scoreSinglePeak(double[] peaks, int scorePeakIndex) {
+		double closestPeak = findClosestMatchingPeak(peaks[scorePeakIndex]);
+		return closestPeak / peaks[scorePeakIndex];
+	}
+
+	public double scoreAllPeaks(double[] peaks) {
+		double sumOfPeakScores = 0.0;
+		for(int i = 0; i < peaks.length; i++){
+			sumOfPeakScores += scoreSinglePeak(peaks, i);
+		}
+		return sumOfPeakScores / ((double)peaks.length);
 	}
 
 }
