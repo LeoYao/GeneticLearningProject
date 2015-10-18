@@ -1,10 +1,10 @@
 
-public class SpectralData {
+public class TheoreticalSpectralPeak {
 	private double min;
 	private double avg;
 	private double max;
 	
-	public SpectralData(double min, double avg, double max){
+	public TheoreticalSpectralPeak(double min, double avg, double max){
 		this.setMin(min);
 		this.setAvg(avg);
 		this.setMax(max);

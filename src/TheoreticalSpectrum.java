@@ -3,28 +3,28 @@ public class TheoreticalSpectrum {
 	private static final double AMONIA_MASS = 17.0;
 
 	private String seq;
-	private SpectralData b[];
-	private SpectralData bLessWater[];
-	private SpectralData bLessAmmonia[];
-	private SpectralData bLessBoth[];
+	private TheoreticalSpectralPeak b[];
+	private TheoreticalSpectralPeak bLessWater[];
+	private TheoreticalSpectralPeak bLessAmmonia[];
+	private TheoreticalSpectralPeak bLessBoth[];
 
-	private SpectralData y[];
-	private SpectralData yLessWater[];
-	private SpectralData yLessAmmonia[];
-	private SpectralData yLessBoth[];
+	private TheoreticalSpectralPeak y[];
+	private TheoreticalSpectralPeak yLessWater[];
+	private TheoreticalSpectralPeak yLessAmmonia[];
+	private TheoreticalSpectralPeak yLessBoth[];
 
 	public TheoreticalSpectrum(String seq) {
 		this.seq = seq;
 
-		b = new SpectralData[seq.length() - 2];
-		bLessWater = new SpectralData[seq.length() - 2];
-		bLessAmmonia = new SpectralData[seq.length() - 2];
-		bLessBoth = new SpectralData[seq.length() - 2];
+		b = new TheoreticalSpectralPeak[seq.length() - 2];
+		bLessWater = new TheoreticalSpectralPeak[seq.length() - 2];
+		bLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 2];
+		bLessBoth = new TheoreticalSpectralPeak[seq.length() - 2];
 
-		y = new SpectralData[seq.length() - 2];
-		yLessWater = new SpectralData[seq.length() - 2];
-		yLessAmmonia = new SpectralData[seq.length() - 2];
-		yLessBoth = new SpectralData[seq.length() - 2];
+		y = new TheoreticalSpectralPeak[seq.length() - 2];
+		yLessWater = new TheoreticalSpectralPeak[seq.length() - 2];
+		yLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 2];
+		yLessBoth = new TheoreticalSpectralPeak[seq.length() - 2];
 	}
 
 	public void calculate() {
@@ -32,20 +32,20 @@ public class TheoreticalSpectrum {
 			char[] bString = seq.substring(0, i).toCharArray();
 			char[] yString = seq.substring(i + 1, seq.length() - 1)
 					.toCharArray();
-			b[i - 1] = new SpectralData(0.0, getAvgMass(bString), 0.0);
-			bLessWater[i - 1] = new SpectralData(0.0, b[i - 1].getAvg()
+			b[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(bString), 0.0);
+			bLessWater[i - 1] = new TheoreticalSpectralPeak(0.0, b[i - 1].getAvg()
 					- WATER_MASS, 0.0);
-			bLessAmmonia[i - 1] = new SpectralData(0.0, b[i - 1].getAvg()
+			bLessAmmonia[i - 1] = new TheoreticalSpectralPeak(0.0, b[i - 1].getAvg()
 					- AMONIA_MASS, 0.0);
-			bLessBoth[i - 1] = new SpectralData(0.0, b[i - 1].getAvg()
+			bLessBoth[i - 1] = new TheoreticalSpectralPeak(0.0, b[i - 1].getAvg()
 					- WATER_MASS - AMONIA_MASS, 0.0);
 
-			y[i - 1] = new SpectralData(0.0, getAvgMass(yString), 0.0);
-			yLessWater[i - 1] = new SpectralData(0.0, y[i - 1].getAvg()
+			y[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(yString), 0.0);
+			yLessWater[i - 1] = new TheoreticalSpectralPeak(0.0, y[i - 1].getAvg()
 					- WATER_MASS, 0.0);
-			yLessAmmonia[i - 1] = new SpectralData(0.0, y[i - 1].getAvg()
+			yLessAmmonia[i - 1] = new TheoreticalSpectralPeak(0.0, y[i - 1].getAvg()
 					- AMONIA_MASS, 0.0);
-			yLessBoth[i - 1] = new SpectralData(0.0, y[i - 1].getAvg()
+			yLessBoth[i - 1] = new TheoreticalSpectralPeak(0.0, y[i - 1].getAvg()
 					- WATER_MASS - AMONIA_MASS, 0.0);
 		}
 	}
@@ -95,6 +95,14 @@ public class TheoreticalSpectrum {
 				mass += 163.06333;
 		}
 		return mass;
+	}
+	
+	public double scoreSinglePeak(double[] peaks, int scorePeakIndex){
+		return 0.0;
+	}
+	
+	public double scoreAllPeaks(double[] peaks, int scorePeakIndex){
+		return 0.0;
 	}
 
 }

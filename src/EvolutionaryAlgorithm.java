@@ -30,7 +30,7 @@ public class EvolutionaryAlgorithm {
 //		ident.protIdentification(data);
 	}
 	
-	public void protIdentification(SpectralData data){
+	public void protIdentification(TheoreticalSpectralPeak data){
 		int generations = 10;
 		for(int generation = 0; generation < generations; generation++){
 			for(int popMember = 0; popMember < populationSize; popMember++){
@@ -52,7 +52,7 @@ public class EvolutionaryAlgorithm {
 		}
 	}
 
-	private void calculateFitness(SpectralData data, int popMember) {
+	private void calculateFitness(TheoreticalSpectralPeak data, int popMember) {
 //		fitness[popMember] = Math.abs(protMass(population[popMember].get) - data.getAvg());
 //		System.out.println("Fitness: " + fitness[popMember]);
 	}
