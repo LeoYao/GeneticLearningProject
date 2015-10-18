@@ -1,7 +1,6 @@
-import java.io.File;
-import java.net.URL;
+package main;
+
 import java.util.List;
-import java.util.Scanner;
 
 
 public class EvolutionaryAlgorithm {

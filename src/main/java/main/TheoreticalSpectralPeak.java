@@ -1,3 +1,4 @@
+package main;
 
 public class TheoreticalSpectralPeak {
 	private double min;

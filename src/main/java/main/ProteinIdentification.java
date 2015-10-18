@@ -1,3 +1,5 @@
+package main;
+
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -15,7 +17,7 @@ public class ProteinIdentification {
 	
 	public static void main(String[] args){
 		ProteinIdentification ident = new ProteinIdentification();
-		ident.parseInput("proteins.fasta");
+		ident.parseInput("main/proteins.fasta");
 		ident.calcSpectrums();
 	}
 	

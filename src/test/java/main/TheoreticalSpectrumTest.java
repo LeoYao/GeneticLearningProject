@@ -1,8 +1,9 @@
-import static org.junit.Assert.*;
+package main;
 
+import static org.junit.Assert.*;
 import org.junit.Test;
 
-public class TheoreticalSpectrumTests {
+public class TheoreticalSpectrumTest {
 
 	@Test
 	public void testCalculate() {

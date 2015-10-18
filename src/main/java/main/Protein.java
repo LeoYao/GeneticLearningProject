@@ -1,3 +1,4 @@
+package main;
 
 public class Protein {
 	private int k; //num mutations
