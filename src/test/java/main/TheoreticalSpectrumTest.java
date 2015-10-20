@@ -71,5 +71,15 @@ public class TheoreticalSpectrumTest {
 		double[] peaks2 = { 114.05, 171.2, 224.52, 330.74, 401.19 };
 		assertEquals(ts.scoreAllPeaks(peaks2), 0.99911, tolerance);
 	}
+	
+	@Test
+	public void testScoreSinglePeak() {
+		TheoreticalSpectrum ts = new TheoreticalSpectrum("MGAAASIQ");
+		ts.calculate();
+		double tolerance = 0.0001;
+		
+		double[] peaks = { 114.05, 171.2, 224.52, 330.74, 401.19 };
+		assertEquals(ts.scoreSinglePeak(peaks, 2), 0.9983, tolerance);
+	}
 
 }
