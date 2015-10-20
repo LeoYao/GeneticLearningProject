@@ -18,22 +18,21 @@ public class TheoreticalSpectrum {
 	public TheoreticalSpectrum(String seq) {
 		this.seq = seq;
 
-		b = new TheoreticalSpectralPeak[seq.length() - 2];
-		bLessWater = new TheoreticalSpectralPeak[seq.length() - 2];
-		bLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 2];
-		bLessBoth = new TheoreticalSpectralPeak[seq.length() - 2];
+		b = new TheoreticalSpectralPeak[seq.length() - 1];
+		bLessWater = new TheoreticalSpectralPeak[seq.length() - 1];
+		bLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 1];
+		bLessBoth = new TheoreticalSpectralPeak[seq.length() - 1];
 
-		y = new TheoreticalSpectralPeak[seq.length() - 2];
-		yLessWater = new TheoreticalSpectralPeak[seq.length() - 2];
-		yLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 2];
-		yLessBoth = new TheoreticalSpectralPeak[seq.length() - 2];
+		y = new TheoreticalSpectralPeak[seq.length() - 1];
+		yLessWater = new TheoreticalSpectralPeak[seq.length() - 1];
+		yLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 1];
+		yLessBoth = new TheoreticalSpectralPeak[seq.length() - 1];
 	}
 
 	public void calculate() {
-		for (int i = 1; i < (seq.length() - 1); i++) {
+		for (int i = 1; i < seq.length(); i++) {
 			char[] bString = seq.substring(0, i).toCharArray();
-			char[] yString = seq.substring(i + 1, seq.length() - 1)
-					.toCharArray();
+			char[] yString = seq.substring(i, seq.length()).toCharArray();
 			b[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(bString),
 					0.0);
 			bLessWater[i - 1] = new TheoreticalSpectralPeak(0.0,
@@ -105,46 +104,46 @@ public class TheoreticalSpectrum {
 		double tolerance = 10.0;
 		double closestMatch = 0.0;
 		double distance = experimentalPeak - closestMatch;
-		for (int i = 1; i < (seq.length() - 1); i++) {
+		for (int i = 0; i < seq.length() - 1; i++) {
 
-			if (Math.abs(b[i - 1].getAvg() - experimentalPeak) < distance) {
-				closestMatch = b[i - 1].getAvg();
-				distance = experimentalPeak - closestMatch;
+			if (Math.abs(b[i].getAvg() - experimentalPeak) < distance) {
+				closestMatch = b[i].getAvg();
+				distance = Math.abs(experimentalPeak - closestMatch);
 			}
 
-			if (Math.abs(bLessWater[i - 1].getAvg() - experimentalPeak) < distance) {
-				closestMatch = bLessWater[i - 1].getAvg();
-				distance = experimentalPeak - closestMatch;
+			if (Math.abs(bLessWater[i].getAvg() - experimentalPeak) < distance) {
+				closestMatch = bLessWater[i].getAvg();
+				distance = Math.abs(experimentalPeak - closestMatch);
 			}
 
-			if (Math.abs(bLessAmmonia[i - 1].getAvg() - experimentalPeak) < distance) {
-				closestMatch = bLessAmmonia[i - 1].getAvg();
-				distance = experimentalPeak - closestMatch;
+			if (Math.abs(bLessAmmonia[i].getAvg() - experimentalPeak) < distance) {
+				closestMatch = bLessAmmonia[i].getAvg();
+				distance = Math.abs(experimentalPeak - closestMatch);
 			}
 
-			if (Math.abs(bLessBoth[i - 1].getAvg() - experimentalPeak) < distance) {
-				closestMatch = bLessBoth[i - 1].getAvg();
-				distance = experimentalPeak - closestMatch;
+			if (Math.abs(bLessBoth[i].getAvg() - experimentalPeak) < distance) {
+				closestMatch = bLessBoth[i].getAvg();
+				distance = Math.abs(experimentalPeak - closestMatch);
 			}
 
-			if (Math.abs(y[i - 1].getAvg() - experimentalPeak) < distance) {
-				closestMatch = y[i - 1].getAvg();
-				distance = experimentalPeak - closestMatch;
+			if (Math.abs(y[i].getAvg() - experimentalPeak) < distance) {
+				closestMatch = y[i].getAvg();
+				distance = Math.abs(experimentalPeak - closestMatch);
 			}
 
-			if (Math.abs(yLessWater[i - 1].getAvg() - experimentalPeak) < distance) {
-				closestMatch = yLessWater[i - 1].getAvg();
-				distance = experimentalPeak - closestMatch;
+			if (Math.abs(yLessWater[i].getAvg() - experimentalPeak) < distance) {
+				closestMatch = yLessWater[i].getAvg();
+				distance = Math.abs(experimentalPeak - closestMatch);
 			}
 
-			if (Math.abs(yLessAmmonia[i - 1].getAvg() - experimentalPeak) < distance) {
-				closestMatch = yLessAmmonia[i - 1].getAvg();
-				distance = experimentalPeak - closestMatch;
+			if (Math.abs(yLessAmmonia[i].getAvg() - experimentalPeak) < distance) {
+				closestMatch = yLessAmmonia[i].getAvg();
+				distance = Math.abs(experimentalPeak - closestMatch);
 			}
 
-			if (Math.abs(yLessBoth[i - 1].getAvg() - experimentalPeak) < distance) {
-				closestMatch = yLessBoth[i - 1].getAvg();
-				distance = experimentalPeak - closestMatch;
+			if (Math.abs(yLessBoth[i].getAvg() - experimentalPeak) < distance) {
+				closestMatch = yLessBoth[i].getAvg();
+				distance = Math.abs(experimentalPeak - closestMatch);
 			}
 		}
 		return closestMatch;
@@ -152,15 +151,21 @@ public class TheoreticalSpectrum {
 
 	public double scoreSinglePeak(double[] peaks, int scorePeakIndex) {
 		double closestPeak = findClosestMatchingPeak(peaks[scorePeakIndex]);
-		return closestPeak / peaks[scorePeakIndex];
+		if (closestPeak < peaks[scorePeakIndex])
+			return closestPeak / peaks[scorePeakIndex];
+		else if (closestPeak > peaks[scorePeakIndex])
+			return peaks[scorePeakIndex] / closestPeak;
+		else
+			return 1.0;
 	}
 
 	public double scoreAllPeaks(double[] peaks) {
 		double sumOfPeakScores = 0.0;
-		for(int i = 0; i < peaks.length; i++){
-			sumOfPeakScores += scoreSinglePeak(peaks, i);
+		for (int i = 0; i < peaks.length; i++) {
+			double score = scoreSinglePeak(peaks, i);
+			sumOfPeakScores += score;
 		}
-		return sumOfPeakScores / ((double)peaks.length);
+		return sumOfPeakScores / ((double) peaks.length);
 	}
 
 }
