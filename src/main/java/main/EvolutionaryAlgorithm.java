@@ -1,19 +1,35 @@
 package main;
 
+import java.util.HashSet;
 import java.util.List;
 
 
 public class EvolutionaryAlgorithm {
-	private List<Protein> database;
-	private Protein[] population;
-	private double[] fitness;
-	private int populationSize;
+	//private List<Protein> database;
+
+	private Protein[] survivors;
+	private int survivorSize;
+	private int actualSurvivorCount;
+
+	private Protein[] generation;
+	private int actualDescendantCount;
+
+	//How many children a parent can breed
+	private int childrenSize;
+
+	private Protein ancestor;
+	private double[] experimentalPeak;
 	
-	
-	public EvolutionaryAlgorithm(){
-		populationSize = 50;
-		population = new Protein[populationSize];
-		fitness  = new double[populationSize];		
+	public EvolutionaryAlgorithm(Protein ancestor, int survivorSize, int childrenSize, double[] experimentalPeak){
+		this.ancestor = ancestor;
+		this.childrenSize = childrenSize;
+		this.survivorSize = survivorSize;
+
+		survivors = new Protein[survivorSize];
+		generation = new Protein[survivorSize * childrenSize + survivorSize]; //the parent will also live in that generation
+		this.experimentalPeak = experimentalPeak;
+		survivors[0] = ancestor;
+		actualSurvivorCount = 1;
 //		for(int i = 0; i < populationSize; i++){
 //			//population[i] = new Protein(new char[]{'G','S','F','D','A'});
 //			population[i] = new Protein(new char[]{'A','S','A','F','A'});
@@ -23,12 +39,145 @@ public class EvolutionaryAlgorithm {
 	}
 	
 	public static void main(String[] args){
-		EvolutionaryAlgorithm ident = new EvolutionaryAlgorithm();
-		System.out.println(ident.protMass(new char[]{'G','P','F','N','A'}));
+
+		EvolutionaryAlgorithm alg = new EvolutionaryAlgorithm(null, 0, 0 , new double[0]); //Todo: to materalize
+
+		alg.evolve(0, 0.01f);
+
+		System.out.println("--------------------------------------------------------------------------");
+		System.out.println("AminoAcidsequence: Fitness");
+		System.out.println("--------------------------------------------------------------------------");
+		for(Protein p : alg.getTopK(10))
+		{
+			System.out.println(p.getAminoAcidsequence() + ": " + p.getFitness());
+		}
+
+		//EvolutionaryAlgorithm ident = new EvolutionaryAlgorithm();
+		//System.out.println(ident.protMass(new char[]{'G','P','F','N','A'}));
 //		SpectralData data = new SpectralData(486.22267);
 //		ident.protIdentification(data);
 	}
-	
+
+	public void evolve(int maxGenerationNum, float minNewDiffSuvivorRatio)
+	{
+		for (int i = 0; i < maxGenerationNum; i++)
+		{
+			getOneGeneration();
+			Protein[] newSurvivors = getSurvivors();
+			int newDiffSurvivorCount = getNewDiffSurvivorCount(survivors, newSurvivors);
+			float newDiffSurvivorRatio = (float) newDiffSurvivorCount / (float) actualSurvivorCount;
+			actualSurvivorCount = copySurvivors(newSurvivors);
+			if (newDiffSurvivorRatio < minNewDiffSuvivorRatio)
+			{
+				break;
+			}
+		}
+	}
+
+
+	private Protein[] getSurvivors()
+	{
+		int newSurvivorsSize = Math.min(survivorSize, actualDescendantCount);
+		Protein[] newSurvivors = new Protein[newSurvivorsSize];
+		for (int i = 0; i < newSurvivorsSize; i++)
+		{
+			newSurvivors[i] = generation[i];
+		}
+
+		return newSurvivors;
+	}
+
+	private int copySurvivors(Protein[] newSuvivors)
+	{
+		int len = newSuvivors.length;
+		for(int i = 0; i < len; i++)
+		{
+			survivors[i] = newSuvivors[i];
+		}
+
+		return len;
+	}
+
+	private int getNewDiffSurvivorCount(Protein[] o, Protein[] n)
+	{
+		HashSet<String> set = new HashSet<String>(o.length);
+		for (Protein p : o)
+		{
+			set.add(p.getAminoAcidsequence());
+		}
+
+		int newSurvivorCount = 0;
+		for (Protein p : n)
+		{
+			if (!set.contains(p.getAminoAcidsequence()))
+			{
+				newSurvivorCount++;
+			}
+		}
+
+		return newSurvivorCount;
+	}
+
+
+	private void getOneGeneration()
+	{
+		int actualDescendantCount = 0;
+		for(int i = 0; i < actualSurvivorCount; i++)
+		{
+			Protein[] tmpChildren = breed(survivors[i]);
+			for (int j = 0; j < tmpChildren.length; j++)
+			{
+				generation[actualDescendantCount++] = tmpChildren[j];
+			}
+		}
+
+		calcReward();
+
+		for(int i = 0; i < actualSurvivorCount; i++) {
+			generation[actualDescendantCount++] = survivors[i];
+		}
+
+		sort();
+	}
+
+	//Todo
+	private void calcReward()
+	{
+
+	}
+
+	//Todo
+	private void sort()
+	{
+
+	}
+
+	public Protein[] getTopK(int k)
+	{
+		int len = Math.min(k, actualSurvivorCount);
+		Protein[] topK = new Protein[len];
+
+		for(int i = 0; i < len; i++)
+		{
+			topK[i] = survivors[i].clone();
+		}
+
+		return topK;
+	}
+
+	private Protein[] breed(Protein parent)
+	{
+		Protein[] tmpChildren = new Protein[childrenSize];
+		for (int i = 0; i < childrenSize; i++)
+		{
+			tmpChildren[i] = ProteinMutator.mutate(parent, ancestor);
+		}
+
+		return tmpChildren;
+	}
+
+
+	/*
 	public void protIdentification(TheoreticalSpectralPeak data){
 		int generations = 10;
 		for(int generation = 0; generation < generations; generation++){
@@ -81,6 +230,6 @@ public class EvolutionaryAlgorithm {
 			else if(protBuff[i] == 'Y') mass += 163.06333;
 		}
 		return mass;
-	}
+	}*/
 
 }
