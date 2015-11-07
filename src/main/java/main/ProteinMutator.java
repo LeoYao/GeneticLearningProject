@@ -5,17 +5,17 @@ package main;
  */
 public class ProteinMutator {
 
-    public static Protein mutate(Protein protein, Protein ancestor)
+    public static Protein mutate(Protein protein)
     {
         char newAminoAcidChar = RandomAminoAcidGenerator.generate();
         String originalSeq = protein.getAminoAcidsequence();
         int seqLen = originalSeq.length();
         int mutatePos = RandomNumberGenerator.generate(0, seqLen);
 
-        return mutate(protein, ancestor, mutatePos);
+        return mutate(protein, mutatePos);
     }
 
-    public static Protein mutate(Protein protein, Protein ancestor, int mutatePos)
+    public static Protein mutate(Protein protein, int mutatePos)
     {
         char newAminoAcidChar = RandomAminoAcidGenerator.generate();
         String originalSeq = protein.getAminoAcidsequence();
@@ -42,9 +42,9 @@ public class ProteinMutator {
 
         String newSeq = sb.toString();
 
-        int mutateTimes = ProteinComparator.diff(ancestor.getAminoAcidsequence(), newSeq);
+        int mutateTimes = ProteinComparator.diff(protein.getAncestorSequence(), newSeq);
 
-        Protein newProtein = new Protein(newSeq, mutateTimes, mutatePos);
+        Protein newProtein = new Protein(newSeq, protein.getAncestorSequence(), mutateTimes, mutatePos);
 
         return newProtein;
     }

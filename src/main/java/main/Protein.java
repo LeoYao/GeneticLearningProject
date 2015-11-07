@@ -5,17 +5,20 @@ public class Protein {
 	private String aminoAcidsequence;
 	private int latestMutatePos;
 	private double fitness;
+	private String ancestorSequence;
 
 	public Protein(String seq){
 		setK(0);
 		this.aminoAcidsequence = seq;
 		latestMutatePos = -1;
+		ancestorSequence = seq;
 	}
 
-	public Protein(String seq, int k, int mutatePos){
+	public Protein(String seq, String ancestorSequence, int k, int mutatePos){
 		setK(k);
 		this.aminoAcidsequence = seq;
 		this.latestMutatePos = mutatePos;
+		this.ancestorSequence = ancestorSequence;
 	}
 
 	public Protein(){
@@ -50,7 +53,7 @@ public class Protein {
 
 	public Protein clone()
 	{
-		return new Protein(aminoAcidsequence, k, latestMutatePos);
+		return new Protein(aminoAcidsequence, ancestorSequence, k, latestMutatePos);
 	}
 
 	public void setFitness(double f)
@@ -61,6 +64,11 @@ public class Protein {
 	public double getFitness()
 	{
 		return fitness;
+	}
+
+	public String getAncestorSequence()
+	{
+		return ancestorSequence;
 	}
 
 }
