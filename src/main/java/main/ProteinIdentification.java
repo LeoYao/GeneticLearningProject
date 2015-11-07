@@ -27,6 +27,7 @@ public class ProteinIdentification {
 	}*/
 
 	public List<Protein> parseInput(String fileName) {
+
 		List<Protein> database = new ArrayList<Protein>();
 
 		URL url = this.getClass().getResource(fileName);

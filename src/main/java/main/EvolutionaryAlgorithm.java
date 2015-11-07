@@ -17,21 +17,23 @@ public class EvolutionaryAlgorithm {
 	//How many children a parent can breed
 	private int childrenSize;
 
-	private Protein ancestor;
 	private double[] experimentalPeak;
-
-	private List<Protein> database;
 	
-	public EvolutionaryAlgorithm(Protein ancestor, int survivorSize, int childrenSize, double[] experimentalPeak){
-		this.ancestor = ancestor;
+	public EvolutionaryAlgorithm(List<Protein> ancestor, int survivorSize, int childrenSize, double[] experimentalPeak){
 		this.childrenSize = childrenSize;
 		this.survivorSize = survivorSize;
 
 		survivors = new Protein[survivorSize];
+		int initPopulationNum = Math.min(ancestor.size(), survivorSize);
+		for (int i = 0; i < initPopulationNum; i++)
+		{
+			survivors[i] = ancestor.get(i);
+		}
+
 		generation = new Protein[survivorSize * childrenSize + survivorSize]; //the parent will also live in that generation
 		this.experimentalPeak = experimentalPeak;
-		survivors[0] = ancestor;
-		actualSurvivorCount = 1;
+		actualSurvivorCount = initPopulationNum;
+
 //		for(int i = 0; i < populationSize; i++){
 //			//population[i] = new Protein(new char[]{'G','S','F','D','A'});
 //			population[i] = new Protein(new char[]{'A','S','A','F','A'});
@@ -42,10 +44,10 @@ public class EvolutionaryAlgorithm {
 	
 	public static void main(String[] args){
 
-		//ProteinIdentification parser = new ProteinIdentification();
-		//List<Protein> proteins = parser.parseInput("main/proteins.fasta");
+		ProteinIdentification parser = new ProteinIdentification();
+		List<Protein> proteins = parser.parseInput("main/proteins.fasta");
 
-		Protein ancestor = new Protein("INNVCFPR");
+		//Protein ancestor = new Protein("INNVCFPR");
 		double[] expPeaks = {114.1668,
 				228.2706,
 				342.3744,
@@ -55,9 +57,9 @@ public class EvolutionaryAlgorithm {
 				1025.1333
 		};
 
-		EvolutionaryAlgorithm alg = new EvolutionaryAlgorithm(ancestor, 10, 20 , expPeaks); //Todo: to materalize
+		EvolutionaryAlgorithm alg = new EvolutionaryAlgorithm(proteins, 10, 20 , expPeaks); //Todo: to materalize
 
-		alg.evolve(0, 0.01f);
+		alg.evolve(1, 0.01f);
 
 		System.out.println("--------------------------------------------------------------------------");
 		System.out.println("AminoAcidsequence: Fitness");
@@ -66,11 +68,6 @@ public class EvolutionaryAlgorithm {
 		{
 			System.out.println(p.getAminoAcidsequence() + ": " + p.getFitness());
 		}
-
-		//EvolutionaryAlgorithm ident = new EvolutionaryAlgorithm();
-		//System.out.println(ident.protMass(new char[]{'G','P','F','N','A'}));
-//		SpectralData data = new SpectralData(486.22267);
-//		ident.protIdentification(data);
 	}
 
 	public void evolve(int maxGenerationNum, float minNewDiffSuvivorRatio)
@@ -185,7 +182,7 @@ public class EvolutionaryAlgorithm {
 		Protein[] tmpChildren = new Protein[childrenSize];
 		for (int i = 0; i < childrenSize; i++)
 		{
-			tmpChildren[i] = ProteinMutator.mutate(parent, ancestor);
+			tmpChildren[i] = ProteinMutator.mutate(parent);
 		}
 
 		return tmpChildren;
