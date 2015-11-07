@@ -8,26 +8,27 @@ import java.util.Scanner;
 
 
 public class ProteinIdentification {
-	private List<Protein> database;
-	
-	
-	public ProteinIdentification(){
-		database = new ArrayList<Protein>();
-	}
-	
+
+	public ProteinIdentification() {}
+
+	/*
 	public static void main(String[] args){
 		ProteinIdentification ident = new ProteinIdentification();
 		ident.parseInput("main/proteins.fasta");
-		ident.calcSpectrums();
+		//ident.calcSpectrums();
 	}
-	
-	public void calcSpectrums(){		
+	*/
+
+	/*
+	public void calcSpectrums(){
 		TheoreticalSpectrum spect = new TheoreticalSpectrum(database.get(0).getAminoAcidsequence());
 		spect.calculate();
 		System.out.println();
-	}
-	
-	public void parseInput(String fileName) {
+	}*/
+
+	public List<Protein> parseInput(String fileName) {
+		List<Protein> database = new ArrayList<Protein>();
+
 		URL url = this.getClass().getResource(fileName);
 		try {
 			File file = new File(url.toURI());
@@ -48,6 +49,8 @@ public class ProteinIdentification {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		return database;
 	}
 
 }

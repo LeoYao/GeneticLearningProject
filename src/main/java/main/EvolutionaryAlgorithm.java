@@ -19,6 +19,8 @@ public class EvolutionaryAlgorithm {
 
 	private Protein ancestor;
 	private double[] experimentalPeak;
+
+	private List<Protein> database;
 	
 	public EvolutionaryAlgorithm(Protein ancestor, int survivorSize, int childrenSize, double[] experimentalPeak){
 		this.ancestor = ancestor;
@@ -40,7 +42,20 @@ public class EvolutionaryAlgorithm {
 	
 	public static void main(String[] args){
 
-		EvolutionaryAlgorithm alg = new EvolutionaryAlgorithm(null, 0, 0 , new double[0]); //Todo: to materalize
+		//ProteinIdentification parser = new ProteinIdentification();
+		//List<Protein> proteins = parser.parseInput("main/proteins.fasta");
+
+		Protein ancestor = new Protein("INNVCFPR");
+		double[] expPeaks = {114.1668,
+				228.2706,
+				342.3744,
+				441.507,
+				780.84,
+				928.0166,
+				1025.1333
+		};
+
+		EvolutionaryAlgorithm alg = new EvolutionaryAlgorithm(ancestor, 10, 20 , expPeaks); //Todo: to materalize
 
 		alg.evolve(0, 0.01f);
 
