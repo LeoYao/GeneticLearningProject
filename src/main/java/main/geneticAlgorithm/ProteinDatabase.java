@@ -1,4 +1,4 @@
-package main.java.main.geneticAlgorithm;
+package main.geneticAlgorithm;
 
 import java.io.File;
 import java.net.URL;

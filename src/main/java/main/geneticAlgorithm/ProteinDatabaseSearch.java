@@ -1,4 +1,4 @@
-package main.java.main.geneticAlgorithm;
+package main.geneticAlgorithm;
 
 import java.util.List;
 import java.util.concurrent.ExecutorService;

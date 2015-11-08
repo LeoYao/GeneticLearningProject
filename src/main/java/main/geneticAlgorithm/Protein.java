@@ -1,4 +1,4 @@
-package main.java.main.geneticAlgorithm;
+package main.geneticAlgorithm;
 
 public class Protein implements Runnable {
 	private int k; //num mutations

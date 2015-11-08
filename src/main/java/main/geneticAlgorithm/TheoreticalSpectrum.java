@@ -1,6 +1,6 @@
-package main.java.main.geneticAlgorithm;
+package main.geneticAlgorithm;
 
-import main.java.main.TheoreticalSpectralPeak;
+import main.TheoreticalSpectralPeak;
 
 public class TheoreticalSpectrum {
 	protected static final double WATER_MASS = 18.0;
