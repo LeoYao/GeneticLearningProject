@@ -64,11 +64,11 @@ public class Protein implements Runnable {
 	}
 
 	public void run() {
-		//calculate score
+		//FIXME calculate fitness score using TheoreticalSpectrum
 	}
 
 	public void mutate(){
-		//FIXME
+		//FIXME create a mutation method
 	}
 	
 }

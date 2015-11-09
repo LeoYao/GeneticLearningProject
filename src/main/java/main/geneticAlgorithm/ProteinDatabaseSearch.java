@@ -12,13 +12,18 @@ public class ProteinDatabaseSearch {
 
 	public ProteinDatabaseSearch() {
 		populationSize = 500;
-		maxGeneration = 10;
+		maxGeneration = 10;	
+		createInitialPopulation();
+	}
+
+	private void createInitialPopulation() {
+		// FIXME set initial population with proteins from the database
+		//possibly use TheoreticalSpectrum.getAvgMass?
 		
 		ProteinDatabase ident = new ProteinDatabase();
 		ident.parseInput("main/proteins.fasta");
 		List<Protein> database = ident.getDatabase();
-
-		// set initial population
+		
 		population = new Protein[populationSize];
 		scores = new double[populationSize];
 		for (int i = 0; i < populationSize; i++) {
@@ -35,8 +40,6 @@ public class ProteinDatabaseSearch {
 			ExecutorService executor = Executors.newFixedThreadPool(10);
 
 			for (int i = 0; i < populationSize; i++) {
-				if (population[i].getScore() < generation + 1)
-					population[i].mutate();
 				executor.submit(population[i]);
 			}
 
@@ -45,19 +48,38 @@ public class ProteinDatabaseSearch {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 
-			for (int i = 0; i < populationSize; i++) {
-				System.out.println("Member: " + population[i].getProteinSequence() + " score: "
-						+ population[i].getScore());
-			}
+			debugPopulation();
+			Protein[] survivors = cullPopulation(population);
+			population = breed(survivors);
 		}
 	}
 
+	private void debugPopulation() {
+		//XXX for debugging only
+		for (int i = 0; i < populationSize; i++) {
+			System.out.println("Member: " + population[i].getAminoAcidsequence() + " score: "
+					+ population[i].getFitness());				
+		}
+	}
+
+	private Protein[] breed(Protein[] survivors) {
+		//FIXME create a method to replace culled population members
+		//make sure that the population size is still populationSize
+		return null;
+	}
+
+	private Protein[] cullPopulation(Protein[] pop) {
+		// FIXME create a method to get rid of poorly scoring proteins
+		return null;
+	}
+
 	public static void main(String[] args) {
+		//FIXME create a parser for experimental spectrums that returns double[] = {peak1 mass, peak2 mass, peak3 mass, ...}
+		
 		ProteinDatabaseSearch gmf = new ProteinDatabaseSearch();
 		gmf.findProteins();
 	}
