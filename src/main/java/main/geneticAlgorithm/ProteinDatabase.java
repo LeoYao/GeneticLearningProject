@@ -28,7 +28,8 @@ public class ProteinDatabase {
 	}*/
 	
 	public void parseInput(String fileName) {
-		URL url = this.getClass().getResource(fileName);
+		URL url = ProteinDatabase.class.getClassLoader().getResource(fileName);
+		//URL url = this.getClass().getResource(fileName);
 		try {
 			File file = new File(url.toURI());
 			Scanner scan = new Scanner(file);

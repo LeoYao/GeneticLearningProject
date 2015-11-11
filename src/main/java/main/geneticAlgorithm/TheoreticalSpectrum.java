@@ -1,7 +1,5 @@
 package main.geneticAlgorithm;
 
-import main.TheoreticalSpectralPeak;
-
 public class TheoreticalSpectrum {
 	protected static final double WATER_MASS = 18.0;
 	protected static final double AMONIA_MASS = 17.0;

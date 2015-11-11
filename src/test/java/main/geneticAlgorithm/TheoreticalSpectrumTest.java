@@ -1,6 +1,7 @@
-package main;
+package main.geneticAlgorithm;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
 public class TheoreticalSpectrumTest {
