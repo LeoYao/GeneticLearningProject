@@ -75,7 +75,7 @@ public class ExperimentalSpectrumTest {
 		double tolerance = 0.0001;
 		
 		double[] peaks = { 114.05, 171.2, 224.52, 330.74, 401.19 };
-		assertEquals(ts.scoreSinglePeak(peaks, 2), 0.9983, tolerance);
+		assertEquals(ts.scoreSingleExperimentalPeak(peaks, 2), 0.9983, tolerance);
 	}
 
 }

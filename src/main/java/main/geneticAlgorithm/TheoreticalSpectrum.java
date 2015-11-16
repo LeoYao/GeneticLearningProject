@@ -4,6 +4,10 @@ public class TheoreticalSpectrum {
 	protected static final double WATER_MASS = 18.0;
 	protected static final double AMONIA_MASS = 17.0;
 
+	public enum PeakType {
+		NOT_USED, NORMAL, LESS_WATER, LESS_AMMONIA, LESS_BOTH
+	}
+
 	protected String seq;
 	protected TheoreticalSpectralPeak b[];
 	protected TheoreticalSpectralPeak bLessWater[];
@@ -14,6 +18,9 @@ public class TheoreticalSpectrum {
 	protected TheoreticalSpectralPeak yLessWater[];
 	protected TheoreticalSpectralPeak yLessAmmonia[];
 	protected TheoreticalSpectralPeak yLessBoth[];
+
+	protected PeakType bPeaksUsedForScoring[];
+	protected PeakType yPeaksUsedForScoring[];
 
 	public TheoreticalSpectrum(String seq) {
 		this.seq = seq;
@@ -27,6 +34,14 @@ public class TheoreticalSpectrum {
 		yLessWater = new TheoreticalSpectralPeak[seq.length() - 1];
 		yLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 1];
 		yLessBoth = new TheoreticalSpectralPeak[seq.length() - 1];
+
+		bPeaksUsedForScoring = new PeakType[seq.length() - 1];
+		yPeaksUsedForScoring = new PeakType[seq.length() - 1];
+		
+		for (int i = 0; i < seq.length() - 1; i++) {
+			bPeaksUsedForScoring[i] = PeakType.NOT_USED;
+			yPeaksUsedForScoring[i] = PeakType.NOT_USED;
+		}
 	}
 
 	public void calculate() {
@@ -100,57 +115,98 @@ public class TheoreticalSpectrum {
 		return mass;
 	}
 
-	public double findClosestMatchingPeak(double experimentalPeak) {
+	public double findClosestTheoreticalPeak(double experimentalPeak) {
 		double tolerance = 10.0;
 		double closestMatch = 0.0;
 		double distance = experimentalPeak - closestMatch;
+		boolean closestPeakB = false;
+		PeakType closestPeakTypeUsed = PeakType.NOT_USED;
+		int closestPeakUsedI = -1;
+
 		for (int i = 0; i < seq.length() - 1; i++) {
 
-			if (Math.abs(b[i].getAvg() - experimentalPeak) < distance) {
+			if (Math.abs(b[i].getAvg() - experimentalPeak) < distance
+					&& bPeaksUsedForScoring[i] == PeakType.NOT_USED) {
 				closestMatch = b[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakB = true;
+				closestPeakTypeUsed = PeakType.NORMAL;
+				closestPeakUsedI = i;
 			}
 
-			if (Math.abs(bLessWater[i].getAvg() - experimentalPeak) < distance) {
+			if (Math.abs(bLessWater[i].getAvg() - experimentalPeak) < distance
+					&& bPeaksUsedForScoring[i] == PeakType.NOT_USED) {
 				closestMatch = bLessWater[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakB = true;
+				closestPeakTypeUsed = PeakType.LESS_WATER;
+				closestPeakUsedI = i;
 			}
 
-			if (Math.abs(bLessAmmonia[i].getAvg() - experimentalPeak) < distance) {
+			if (Math.abs(bLessAmmonia[i].getAvg() - experimentalPeak) < distance
+					&& bPeaksUsedForScoring[i] == PeakType.NOT_USED) {
 				closestMatch = bLessAmmonia[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakB = true;
+				closestPeakTypeUsed = PeakType.LESS_AMMONIA;
+				closestPeakUsedI = i;
 			}
 
-			if (Math.abs(bLessBoth[i].getAvg() - experimentalPeak) < distance) {
+			if (Math.abs(bLessBoth[i].getAvg() - experimentalPeak) < distance
+					&& bPeaksUsedForScoring[i] == PeakType.NOT_USED) {
 				closestMatch = bLessBoth[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakB = true;
+				closestPeakTypeUsed = PeakType.LESS_BOTH;
+				closestPeakUsedI = i;
 			}
 
-			if (Math.abs(y[i].getAvg() - experimentalPeak) < distance) {
+			if (Math.abs(y[i].getAvg() - experimentalPeak) < distance
+					&& yPeaksUsedForScoring[i] == PeakType.NOT_USED) {
 				closestMatch = y[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakTypeUsed = PeakType.NORMAL;
+				closestPeakUsedI = i;
 			}
 
-			if (Math.abs(yLessWater[i].getAvg() - experimentalPeak) < distance) {
+			if (Math.abs(yLessWater[i].getAvg() - experimentalPeak) < distance
+					&& yPeaksUsedForScoring[i] == PeakType.NOT_USED) {
 				closestMatch = yLessWater[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakTypeUsed = PeakType.LESS_WATER;
+				closestPeakUsedI = i;
 			}
 
-			if (Math.abs(yLessAmmonia[i].getAvg() - experimentalPeak) < distance) {
+			if (Math.abs(yLessAmmonia[i].getAvg() - experimentalPeak) < distance
+					&& yPeaksUsedForScoring[i] == PeakType.NOT_USED) {
 				closestMatch = yLessAmmonia[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakTypeUsed = PeakType.LESS_AMMONIA;
+				closestPeakUsedI = i;
 			}
 
-			if (Math.abs(yLessBoth[i].getAvg() - experimentalPeak) < distance) {
+			if (Math.abs(yLessBoth[i].getAvg() - experimentalPeak) < distance
+					&& yPeaksUsedForScoring[i] == PeakType.NOT_USED) {
 				closestMatch = yLessBoth[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakTypeUsed = PeakType.LESS_BOTH;
+				closestPeakUsedI = i;
 			}
 		}
+
+		if (closestPeakUsedI != -1) {
+			if (closestPeakB) {
+				bPeaksUsedForScoring[closestPeakUsedI] = closestPeakTypeUsed;
+			} else {
+				yPeaksUsedForScoring[closestPeakUsedI] = closestPeakTypeUsed;
+			}
+		}
+
 		return closestMatch;
 	}
 
-	public double scoreSinglePeak(double[] peaks, int scorePeakIndex) {
-		double closestPeak = findClosestMatchingPeak(peaks[scorePeakIndex]);
+	public double scoreSingleExperimentalPeak(double[] peaks, int scorePeakIndex) {
+		double closestPeak = findClosestTheoreticalPeak(peaks[scorePeakIndex]);
 		if (closestPeak < peaks[scorePeakIndex])
 			return closestPeak / peaks[scorePeakIndex];
 		else if (closestPeak > peaks[scorePeakIndex])
@@ -160,12 +216,31 @@ public class TheoreticalSpectrum {
 	}
 
 	public double scoreAllPeaks(double[] peaks) {
+
 		double sumOfPeakScores = 0.0;
 		for (int i = 0; i < peaks.length; i++) {
-			double score = scoreSinglePeak(peaks, i);
+			double score = scoreSingleExperimentalPeak(peaks, i);
 			sumOfPeakScores += score;
 		}
-		return sumOfPeakScores / ((double) peaks.length);
+		double experimentalMatches = sumOfPeakScores / ((double) peaks.length);
+
+		int theoreticalPeaksUsed = 0;
+		for (int i = 0; i < seq.length() - 1; i++) {
+			// check b peaks
+			if (bPeaksUsedForScoring[i] != PeakType.NOT_USED) {
+				theoreticalPeaksUsed++;
+			}
+			// check y peaks
+			if (yPeaksUsedForScoring[i] != PeakType.NOT_USED) {
+				theoreticalPeaksUsed++;
+			}
+		}
+		int numTheoreticalPeaks = (seq.length() - 1) * 2;
+		double theoreticalMatches = ((double) theoreticalPeaksUsed)
+				/ ((double) numTheoreticalPeaks);
+
+		return (experimentalMatches + theoreticalMatches) / 2.0;
+
 	}
 
 }
