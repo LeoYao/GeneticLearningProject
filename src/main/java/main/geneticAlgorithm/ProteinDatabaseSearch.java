@@ -17,6 +17,7 @@ public class ProteinDatabaseSearch {
 
 	class ProteinFitnessComparator implements Comparator<Protein> {
 
+		
 		public int compare(Protein e1, Protein e2) {
 			return Double.compare(e1.getFitness(), e2.getFitness());
 		}
