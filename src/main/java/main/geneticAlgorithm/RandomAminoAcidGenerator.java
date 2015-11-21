@@ -1,6 +1,4 @@
-package main;
-
-import java.util.Random;
+package main.geneticAlgorithm;
 
 /**
  * Created by Leo on 11/6/15.

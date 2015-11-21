@@ -5,6 +5,8 @@ import java.util.*;
 /**
  * Created by Nakul on 11/6/2015.
  */
+
+/*
 public class Qlearner {
 
     private List<Protein> database;
@@ -39,3 +41,5 @@ public class Qlearner {
         return mass;
     }
 }
+
+*/

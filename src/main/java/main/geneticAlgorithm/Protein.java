@@ -3,30 +3,28 @@ package main.geneticAlgorithm;
 import main.proteins.ExperimentalSpectrum;
 import main.proteins.TheoreticalSpectrum;
 
-public class Protein implements Runnable {
-	private int k; // num mutations
+public class Protein {
+	private int mutationTimes; // num mutations
 	private String aminoAcidsequence;
-	private Protein original;
+	private Protein origin;
 	private ExperimentalSpectrum experimental;
 	private int latestMutatePos;
 	private double fitness;
 
 	public Protein(String seq) {
-		setK(0);
+		setMutationTimes(0);
 		this.aminoAcidsequence = seq;
 		latestMutatePos = -1;
+		this.origin = new Protein(seq);
 	}
 
-	public Protein(String seq, int k, int mutatePos) {
-		setK(k);
+	public Protein(String seq, int mutationTimes, int latestMutatePos, Protein origin) {
+		setMutationTimes(mutationTimes);
 		this.aminoAcidsequence = seq;
-		this.latestMutatePos = mutatePos;
+		this.latestMutatePos = latestMutatePos;
+		this.origin = origin;
 	}
 
-	public Protein() {
-		k = 0;
-		aminoAcidsequence = "";
-	}
 
 	public String getAminoAcidsequence() {
 		return aminoAcidsequence;
@@ -36,16 +34,20 @@ public class Protein implements Runnable {
 		this.aminoAcidsequence = seq;
 	}
 
-	public int getK() {
-		return k;
+	public int getMutationTimes() {
+		return mutationTimes;
 	}
 
-	public void setK(int k) {
-		this.k = k;
+	public void setMutationTimes(int mutationTimes) {
+		this.mutationTimes = mutationTimes;
 	}
 
 	public int getLatestMutatePos() {
 		return latestMutatePos;
+	}
+
+	public void setLatestMutatePos(int pos) {
+		 latestMutatePos = pos;
 	}
 
 	public void append(String append) {
@@ -53,7 +55,7 @@ public class Protein implements Runnable {
 	}
 
 	public Protein clone() {
-		return new Protein(aminoAcidsequence, k, latestMutatePos);
+		return new Protein(aminoAcidsequence, mutationTimes, latestMutatePos, origin);
 	}
 
 	public void setFitness(double f) {
@@ -64,26 +66,12 @@ public class Protein implements Runnable {
 		return fitness;
 	}
 
-	public void run() {
-		try {
-			TheoreticalSpectrum ts = new TheoreticalSpectrum(aminoAcidsequence);
-			ts.calculate();
-			fitness = ts.scoreAllPeaks(experimental.getMass());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	public Protein getOrigin() {
+		return origin;
 	}
 
-	public void mutate() {
-		// FIXME create a mutation method
-	}
-
-	public Protein getOriginal() {
-		return original;
-	}
-
-	public void setOriginal(Protein original) {
-		this.original = original;
+	public void setOrigin(Protein origin) {
+		this.origin = origin;
 	}
 
 	public ExperimentalSpectrum getExperimental() {
