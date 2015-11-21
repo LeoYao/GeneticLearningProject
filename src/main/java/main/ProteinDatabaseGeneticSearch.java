@@ -1,4 +1,4 @@
-package main.geneticAlgorithm;
+package main;
 
 import java.util.*;
 import java.util.concurrent.ExecutorService;
@@ -6,16 +6,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import main.geneticAlgorithm.FitnessCalculation;
+import main.geneticAlgorithm.Protein;
+import main.geneticAlgorithm.ProteinDatabase;
+import main.geneticAlgorithm.ProteinMutator;
 import main.proteins.ExperimentalSpectrum;
 
-public class ProteinDatabaseSearch {
+public class ProteinDatabaseGeneticSearch {
 	private Protein[] population;
+	private List<Protein> survivors;
 	private int populationSize;
 	private int maxGeneration;
+	private int maxMutationTimes = 5;
 	private ExperimentalSpectrum es;
 
-	private double suvivorRatio = 0.1;
-	private int minSuvivorNum = 200;
+	private double suvivorRatio = 0.5;
+	private int minSuvivorNum = 20;
 
 	private long initFitnessComputingTimeout = 120; //seconds
 	private long fitnessComputingTimeout = 60; //seconds
@@ -30,7 +36,7 @@ public class ProteinDatabaseSearch {
 		}
 	}
 
-	public ProteinDatabaseSearch() throws InterruptedException, TimeoutException {
+	public ProteinDatabaseGeneticSearch() throws InterruptedException, TimeoutException {
 		populationSize = 500;
 		maxGeneration = 10;
 
@@ -140,8 +146,9 @@ public class ProteinDatabaseSearch {
 					+ "************");
 			runFitnessCalculations(population);
 
-			debugPopulation();
-			Protein[] survivors = cullPopulation(population);
+			//debugPopulation();
+			survivors = cullPopulation(population);
+			debugSurvivors();
 			population = breed(survivors);
 		}
 	}
@@ -151,42 +158,82 @@ public class ProteinDatabaseSearch {
 		for (int i = 0; i < populationSize; i++) {
 			System.out.println("Member: "
 					+ population[i].getAminoAcidsequence() + " score: "
-					+ population[i].getFitness());
+					+ population[i].getFitness() + " mutation times: " + population[i].getMutationTimes());
 		}
 	}
 
-	private Protein[] breed(Protein[] survivors) throws TimeoutException, InterruptedException {
-		int survivorsCnt = survivors.length;
+	private void debugSurvivors() {
+		// XXX for debugging only
+		int i = 0;
+		for (Protein p : survivors) {
+			if (i++ > 100)
+			{
+				System.out.println("Member: "
+						+ p.getAminoAcidsequence() + " score: "
+						+ p.getFitness() + " mutation times: " + p.getMutationTimes());
+			}
+		}
+	}
+
+	private Protein[] breed(List<Protein> survivors) throws TimeoutException, InterruptedException {
+		int survivorsCnt = survivors.size();
 		for (int i = 0; i < populationSize; i++)
 		{
-			population[i] = survivors[i % survivorsCnt];
+			population[i] = survivors.get(i % survivorsCnt).clone();
 		}
 
 		runMutation(population);
 
-		return null;
+		return population;
 	}
 
-	private Protein[] cullPopulation(Protein[] pop) {
+	private List<Protein> cullPopulation(Protein[] pop) {
 
 		int suvivorNum = Math.max((int) (populationSize * suvivorRatio), minSuvivorNum);
 
-		Protein[] suvivors = new Protein[suvivorNum];
-
-		Arrays.sort(pop, new ProteinFitnessComparator());
-		for (int i = 0; i < suvivorNum; i++)
+		List<Protein> tmpSuvivors = new ArrayList<Protein>(suvivorNum);
+		int totalNum = pop.length;
+		if (survivors != null)
 		{
-			suvivors[i] = pop[i];
+			totalNum += survivors.size();
 		}
 
-		return suvivors;
+		Set<String> existed = new HashSet<String>(totalNum);
+		List<Protein> cands = new ArrayList<Protein>(totalNum);
+
+		for (Protein p : pop) {
+			if (!existed.contains(p.getAminoAcidsequence()) && p.getMutationTimes() <= maxMutationTimes ) {
+				cands.add(p);
+				existed.add(p.getAminoAcidsequence());
+			}
+		}
+
+		if (survivors != null) {
+			for (Protein p : survivors) {
+				if (!existed.contains(p.getAminoAcidsequence())) {
+					cands.add(p);
+					existed.add(p.getAminoAcidsequence());
+				}
+			}
+		}
+
+		Collections.sort(cands, new ProteinFitnessComparator());
+
+		suvivorNum = Math.min(suvivorNum, cands.size());
+
+		for (int i = 0; i < suvivorNum; i++)
+		{
+			tmpSuvivors.add(cands.get(i));
+		}
+
+		return tmpSuvivors;
 	}
 
 	public static void main(String[] args) throws InterruptedException, TimeoutException {
 		// FIXME create a parser for experimental spectrums that returns
 		// double[] = {peak1 mass, peak2 mass, peak3 mass, ...}
 
-		ProteinDatabaseSearch gmf = new ProteinDatabaseSearch();
+		ProteinDatabaseGeneticSearch gmf = new ProteinDatabaseGeneticSearch();
 		gmf.findProteins();
 	}
 

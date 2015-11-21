@@ -1,6 +1,8 @@
 package main.geneticAlgorithm;
 
 
+import main.proteins.RandomAminoAcidGenerator;
+import main.proteins.RandomNumberGenerator;
 
 /**
  * Created by Leo on 11/21/15.

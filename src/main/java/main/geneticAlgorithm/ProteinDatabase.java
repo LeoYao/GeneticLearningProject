@@ -42,6 +42,7 @@ public class ProteinDatabase {
 						getDatabase().add(new Protein(sb.toString()));
 					}
 					sb = new StringBuilder();
+					continue;
 				}
 				sb.append(line);
 			}

@@ -15,7 +15,6 @@ public class Protein {
 		setMutationTimes(0);
 		this.aminoAcidsequence = seq;
 		latestMutatePos = -1;
-		this.origin = new Protein(seq);
 	}
 
 	public Protein(String seq, int mutationTimes, int latestMutatePos, Protein origin) {
@@ -55,7 +54,7 @@ public class Protein {
 	}
 
 	public Protein clone() {
-		return new Protein(aminoAcidsequence, mutationTimes, latestMutatePos, origin);
+		return new Protein(aminoAcidsequence, mutationTimes, latestMutatePos, origin != null ? origin : this);
 	}
 
 	public void setFitness(double f) {
