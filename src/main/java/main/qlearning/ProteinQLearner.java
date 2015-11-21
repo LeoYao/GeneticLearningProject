@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import main.proteins.ExperimentalSpectrum;
+import main.proteins.RandomAminoAcidGenerator;
+import main.proteins.RandomNumberGenerator;
 import main.proteins.TheoreticalSpectrum;
 
 public class ProteinQLearner implements Runnable {
@@ -17,15 +19,15 @@ public class ProteinQLearner implements Runnable {
 	private ExperimentalSpectrum experimental;
 	private double fitness;
 	private int maxIterations;
-	
+
 	private double discountFactor = 0.9;
 	private double learningRate = 0.9;
 
 	public ProteinQLearner(String seq, int k, int maxIterations) {
-		this.maxIterations = maxIterations;
+		this.setMaxIterations(maxIterations);
 		setK(k);
 		this.aminoAcidsequence = seq;
-		this.originalSequence = seq;
+		this.setOriginalSequence(seq);
 		transitions = new HashMap<String, List<Transition>>();
 		transitions.put(seq, new ArrayList<Transition>());
 	}
@@ -33,6 +35,7 @@ public class ProteinQLearner implements Runnable {
 	public ProteinQLearner() {
 		k = 0;
 		aminoAcidsequence = "";
+		transitions = new HashMap<String, List<Transition>>();
 	}
 
 	public String getAminoAcidsequence() {
@@ -64,8 +67,8 @@ public class ProteinQLearner implements Runnable {
 	}
 
 	public void run() {
-		for (int i = 0; i < maxIterations; i++) {
-			aminoAcidsequence = originalSequence;
+		for (int i = 0; i < getMaxIterations(); i++) {
+			aminoAcidsequence = getOriginalSequence();
 			for (int j = 0; j < k; j++) {
 				takeAction();
 			}
@@ -74,9 +77,9 @@ public class ProteinQLearner implements Runnable {
 
 	public void takeAction() {
 		Transition decision = actionPolicy();
-		
+
 		if (!decision.isTerminal()) {
-			
+
 		} else {
 			// this is a terminal state
 			scoreSequence();
@@ -84,29 +87,43 @@ public class ProteinQLearner implements Runnable {
 	}
 
 	private Transition actionPolicy() {
-		//fixme, randomly do something worse than the best
-		List<Transition> transactionsFromThisState = transitions
-				.get(aminoAcidsequence);
-		if(transactionsFromThisState == null){
+		// fixme, randomly do something worse than the best
+		if (!transitions.containsKey(aminoAcidsequence)) {
 			List<Transition> newList = new ArrayList<Transition>();
 			transitions.put(aminoAcidsequence, newList);
-			int mutationPos;
-			char mutation;
-			double expectedReward;
-			boolean terminal;
-			Transition t = new Transition(mutationPos, mutation, expectedReward, terminal);
+			Transition t = generateRandomTransition(newList);
 			return t;
 		} else {
-		Transition best = transactionsFromThisState.get(0);
-		double bestScore = best.getExpectedReward();
-		for(Transition t : transactionsFromThisState){
-			if(t.getExpectedReward() > bestScore){
-				best = t;
-				bestScore = t.getExpectedReward();
+			List<Transition> transactionsFromThisState = transitions
+					.get(aminoAcidsequence);
+			if (transactionsFromThisState.size() > 0) {
+				Transition best = transactionsFromThisState.get(0);
+				double bestScore = best.getExpectedReward();
+				for (Transition t : transactionsFromThisState) {
+					if (t.getExpectedReward() > bestScore) {
+						best = t;
+						bestScore = t.getExpectedReward();
+					}
+				}
+				return best;
+			} else {
+				Transition t = generateRandomTransition(transactionsFromThisState);
+				return t;
 			}
 		}
-		return best;
-		}
+	}
+
+	private Transition generateRandomTransition(List<Transition> newList) {
+		int mutationPos = RandomNumberGenerator.generate(0,
+				aminoAcidsequence.length());
+		char mutation = RandomAminoAcidGenerator.generate();
+		double expectedReward = 0.0;
+		int shouldTerm = RandomNumberGenerator.generate(0, 1);
+		boolean terminal = (shouldTerm == 1) ? true : false;
+		Transition t = new Transition(mutationPos, mutation, expectedReward,
+				terminal);
+		newList.add(t);
+		return t;
 	}
 
 	public void scoreSequence() {
@@ -137,6 +154,23 @@ public class ProteinQLearner implements Runnable {
 
 	public void setPreviousTransition(Transition previousTransition) {
 		this.previousTransition = previousTransition;
+	}
+
+	public int getMaxIterations() {
+		return maxIterations;
+	}
+
+	public void setMaxIterations(int maxIterations) {
+		this.maxIterations = maxIterations;
+	}
+
+	public String getOriginalSequence() {
+		return originalSequence;
+	}
+
+	public void setOriginalSequence(String originalSequence) {
+		this.originalSequence = originalSequence;
+		transitions.put(originalSequence, new ArrayList<Transition>());
 	}
 
 }

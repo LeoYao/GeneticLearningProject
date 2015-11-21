@@ -23,7 +23,8 @@ public class ProteinDatabaseSearch {
 	}
 
 	public ProteinDatabaseSearch() {
-		numLearners = 50;
+		//numLearners = 50;
+		numLearners = 3;
 		maxIterations = 1000;
 
 		es = new ExperimentalSpectrum("test.spectra");
@@ -43,6 +44,9 @@ public class ProteinDatabaseSearch {
 		for (ProteinQLearner data : database) {
 			data.setExperimental(es);
 			data.scoreSequence();
+			data.setK(5);
+			data.setMaxIterations(maxIterations);
+			data.setOriginalSequence(data.getAminoAcidsequence());
 		}
 		TreeSet<ProteinQLearner> initialSet = new TreeSet<ProteinQLearner>(
 				new ProteinFitnessComparator());
@@ -83,7 +87,7 @@ public class ProteinDatabaseSearch {
 	}
 
 	public void findProteins() {
-
+		runFitnessCalculations(topProteinsInDatabase);
 	}
 
 	private void debugPopulation() {
