@@ -1,20 +1,17 @@
-package main.geneticAlgorithm;
+package main.proteins;
 
 import static org.junit.Assert.assertEquals;
 
+import main.proteins.TheoreticalSpectrum;
+
 import org.junit.Test;
 
-public class TheoreticalSpectrumTest {
+public class ExperimentalSpectrumTest {
 
 	@Test
 	public void testCalculate() {
 		TheoreticalSpectrum ts = new TheoreticalSpectrum(
-				"MGAAASIQTTVNTLSERISSKLEQEANASAQTKCDIEIGNFY"
-						+ "IRQNHGCNLTVKNMCSADADAQLDAVLSAATETYSGLTPEQK"
-						+ "AYVPAMFTAALNIQTSVNTVVRDFENYVKQTCNSSAVVDNKL"
-						+ "KIQNVIIDECYGAPGSPTNLEFINTGSSKGNCAIKALMQLTT"
-						+ "KATTQIAPKQVAGTGVQFYMIVIGVIILAALFMYYAKRMLFT"
-						+ "STNDKIKLILANKENVHWTTYMDTFFRTSPMVIATTDMQN");
+				"");
 		ts.calculate();
 		// for(int i = 0; i < 3; i++){
 		// System.out.println(ts.b[i].getAvg());
@@ -58,19 +55,19 @@ public class TheoreticalSpectrumTest {
 		double tolerance = 0.0001;
 		
 		double[] peaks5 = { 3.18, 83.99, 117.17, 175.11, 225.53, 333.22, 402.09 };
-		assertEquals(ts.scoreAllPeaks(peaks5), 0.631074, tolerance);
+		assertEquals(ts.scoreAllPeaks(peaks5), 0.8336, tolerance);
 		
 		double[] peaks4 = { 83.99, 117.17, 175.11, 225.53, 333.22, 402.09 };
-		assertEquals(ts.scoreAllPeaks(peaks4), 0.726710, tolerance);
+		assertEquals(ts.scoreAllPeaks(peaks4), 0.9725, tolerance);
 		
 		double[] peaks3 = { 117.17, 175.11, 225.53, 333.22, 402.09 };
-		assertEquals(ts.scoreAllPeaks(peaks3), 0.753466, tolerance);
+		assertEquals(ts.scoreAllPeaks(peaks3), 0.9865, tolerance);
 		
 		double[] peaks = { 114.15, 171.99, 224.52, 331.74, 400.69 };
-		assertEquals(ts.scoreAllPeaks(peaks), 0.776609, tolerance);
+		assertEquals(ts.scoreAllPeaks(peaks), 0.99718, tolerance);
 		
 		double[] peaks2 = { 114.05, 171.2, 224.52, 330.74, 401.19 };
-		assertEquals(ts.scoreAllPeaks(peaks2), 0.824359, tolerance);
+		assertEquals(ts.scoreAllPeaks(peaks2), 0.99911, tolerance);
 	}
 	
 	@Test

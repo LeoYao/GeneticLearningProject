@@ -1,4 +1,5 @@
-package main.geneticAlgorithm;
+package main.proteins;
+
 
 public class TheoreticalSpectrum {
 	protected static final double WATER_MASS = 18.0;

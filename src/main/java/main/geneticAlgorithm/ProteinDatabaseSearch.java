@@ -1,11 +1,12 @@
 package main.geneticAlgorithm;
 
-import java.sql.DatabaseMetaData;
 import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import main.proteins.ExperimentalSpectrum;
 
 public class ProteinDatabaseSearch {
 	private Protein[] population;
@@ -16,7 +17,6 @@ public class ProteinDatabaseSearch {
 
 	class ProteinFitnessComparator implements Comparator<Protein> {
 
-		@Override
 		public int compare(Protein e1, Protein e2) {
 			return Double.compare(e1.getFitness(), e2.getFitness());
 		}

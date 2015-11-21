@@ -1,4 +1,4 @@
-package main.geneticAlgorithm;
+package main.proteins;
 
 import java.io.File;
 import java.net.URL;

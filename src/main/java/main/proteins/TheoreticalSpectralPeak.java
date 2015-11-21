@@ -1,4 +1,4 @@
-package main.geneticAlgorithm;
+package main.proteins;
 
 public class TheoreticalSpectralPeak {
 	private double min;

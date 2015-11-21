@@ -1,5 +1,8 @@
 package main.geneticAlgorithm;
 
+import main.proteins.ExperimentalSpectrum;
+import main.proteins.TheoreticalSpectrum;
+
 public class Protein implements Runnable {
 	private int k; // num mutations
 	private String aminoAcidsequence;
