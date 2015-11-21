@@ -38,7 +38,7 @@ public class ProteinDatabaseGeneticSearch {
 
 	public ProteinDatabaseGeneticSearch() throws InterruptedException, TimeoutException {
 		populationSize = 500;
-		maxGeneration = 10;
+		maxGeneration = 50;
 
 		es = new ExperimentalSpectrum("test.spectra");
 		es.setIntensityThreshold(10);
@@ -166,7 +166,7 @@ public class ProteinDatabaseGeneticSearch {
 		// XXX for debugging only
 		int i = 0;
 		for (Protein p : survivors) {
-			if (i++ > 100)
+			if (i++ < 10)
 			{
 				System.out.println("Member: "
 						+ p.getAminoAcidsequence() + " score: "
