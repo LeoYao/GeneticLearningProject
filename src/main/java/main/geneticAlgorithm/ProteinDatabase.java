@@ -9,8 +9,7 @@ import java.util.Scanner;
 
 public class ProteinDatabase {
 	private List<Protein> database;
-	
-	
+
 	public ProteinDatabase(){
 		setDatabase(new ArrayList<Protein>());
 	}
@@ -33,19 +32,26 @@ public class ProteinDatabase {
 		try {
 			File file = new File(url.toURI());
 			Scanner scan = new Scanner(file);
-			Protein parsing = null;
-			int onData = 0;
+
+			StringBuilder sb = new StringBuilder();
+
 			while (scan.hasNext()) {
 				String line = scan.nextLine();
 				if (line.startsWith(">")) {
-					if (parsing != null) {
-						getDatabase().add(parsing);
+					if (sb.length() > 0) {
+						getDatabase().add(new Protein(sb.toString()));
 					}
-					parsing = new Protein();
-				} else {
-					parsing.append(line);
+					sb = new StringBuilder();
 				}
+				sb.append(line);
 			}
+
+			//Aovid losting the last one
+			if (sb.length() > 0)
+			{
+				getDatabase().add(new Protein(sb.toString()));
+			}
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

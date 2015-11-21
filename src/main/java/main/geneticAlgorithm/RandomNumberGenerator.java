@@ -1,4 +1,4 @@
-package main;
+package main.geneticAlgorithm;
 
 import java.util.Random;
 
