@@ -1,13 +1,12 @@
 package main.qlearning;
 
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import main.geneticAlgorithm.Protein;
 import main.proteins.ExperimentalSpectrum;
+import main.proteins.TheoreticalSpectrum;
 
 public class ProteinDatabaseSearch {
 	private ProteinQLearner[] topProteinsInDatabase;
@@ -20,7 +19,7 @@ public class ProteinDatabaseSearch {
 	class ProteinFitnessComparator implements Comparator<ProteinQLearner> {
 
 		public int compare(ProteinQLearner e1, ProteinQLearner e2) {
-			return Double.compare(e1.getFitness(), e2.getFitness());
+			return -Double.compare(e1.getFitness(), e2.getFitness());
 		}
 	}
 
@@ -45,6 +44,9 @@ public class ProteinDatabaseSearch {
 		ProteinDatabase ident = new ProteinDatabase();
 		ident.parseInput("proteins.fasta");
 		List<ProteinQLearner> database = ident.getDatabase();
+
+		List<ProteinQLearner> candidates = new ArrayList<ProteinQLearner>();
+
 		for (ProteinQLearner data : database) {
 			data.setOriginalSequence(data.getAminoAcidsequence());
 			
@@ -52,19 +54,16 @@ public class ProteinDatabaseSearch {
 				data.setExperimental(es);	
 				data.scoreSequence();
 				data.setK(5);
-				data.setMaxIterations(maxIterations);							
+				data.setMaxIterations(maxIterations);
+
+				candidates.add(data);
 			}
 		}
-		TreeSet<ProteinQLearner> initialSet = new TreeSet<ProteinQLearner>(
-				new ProteinFitnessComparator());
-		// runFitnessCalculations(database.toArray(new ProteinQLearner[] {}));
 
-		for (ProteinQLearner data : database) {
-			initialSet.add(data);
-		}
+		Collections.sort(candidates, new ProteinFitnessComparator());
 
 		topProteinsInDatabase = new ProteinQLearner[numLearners];
-		Iterator<ProteinQLearner> it = initialSet.descendingIterator();
+		Iterator<ProteinQLearner> it = candidates.iterator();
 		int onProtein = 0;
 		while (it.hasNext() && onProtein < numLearners) {
 			ProteinQLearner learner = it.next();
