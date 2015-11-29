@@ -10,6 +10,7 @@ public class Protein {
 	private ExperimentalSpectrum experimental;
 	private int latestMutatePos;
 	private double fitness;
+	private TheoreticalSpectrum ts;
 
 	public Protein(String seq) {
 		setMutationTimes(0);
@@ -58,6 +59,14 @@ public class Protein {
 		p.setExperimental(this.experimental);
 		return p;
 	}
+
+	public void calcFitness()
+	{
+		ts = new TheoreticalSpectrum(getAminoAcidsequence());
+		ts.calculate();
+		setFitness(ts.scoreAllPeaks(getExperimental().getMass()));
+	}
+
 
 	public void setFitness(double f) {
 		fitness = f;

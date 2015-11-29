@@ -263,12 +263,25 @@ public class TheoreticalSpectrum {
 	}
 
 	public double scoreAllPeaks(double[] peaks) {
-		
-		//FIXME boolean[] peaksAccountedFor as another scoring component?
 
+		// FIXME boolean[] peaksAccountedFor as another scoring component?
+
+		double experimentalMatches = averagePeakScore(peaks);
+		double theoreticalMatches = percentageTheoreticalPeaksMatched();
+		double experimentalPeaksMatched = percentageExperimentalPeaksMatched(peaks);
+
+		/*return ((0.10) * experimentalMatches + (0.45) * theoreticalMatches)
+				+ (0.45) * experimentalPeaksMatched;*/
+
+		return ((0.50) * experimentalMatches + (0.5) * theoreticalMatches)
+				+ (0) * experimentalPeaksMatched;
+
+	}
+
+	private double percentageTheoreticalPeaksMatched() {
 		int theoreticalPeaksUsed = 0;
 		for (int i = 0; i < seq.length() - 1; i++) {
-			// check b peaks			
+			// check b peaks
 			if (bUsed[i] == true)
 				theoreticalPeaksUsed++;
 			if (bLessAmmoniaUsed[i] == true)
@@ -290,7 +303,23 @@ public class TheoreticalSpectrum {
 		int numTheoreticalPeaks = (seq.length() - 1) * 8;
 		double theoreticalMatches = ((double) theoreticalPeaksUsed)
 				/ ((double) numTheoreticalPeaks);
-		
+		return theoreticalMatches;
+	}
+
+	private double percentageExperimentalPeaksMatched(double[] peaks) {
+		resetUsed(seq);
+		int numPeaksMatched = 0;
+		for (int i = 0; i < peaks.length; i++) {
+			double closestPeak = findClosestTheoreticalPeak(peaks[i]);
+			if (closestPeak > 0.0)
+				numPeaksMatched++;
+		}
+		double experimentalPeaksMatched = ((double) numPeaksMatched)
+				/ ((double) peaks.length);
+		return experimentalPeaksMatched;
+	}
+
+	private double averagePeakScore(double[] peaks) {
 		resetUsed(seq);
 		double sumOfPeakScores = 0.0;
 		for (int i = 0; i < peaks.length; i++) {
@@ -298,12 +327,10 @@ public class TheoreticalSpectrum {
 			sumOfPeakScores += score;
 		}
 		double experimentalMatches = sumOfPeakScores / ((double) peaks.length);
-
-		return ((0.25)*experimentalMatches + (0.75)*theoreticalMatches);
-
+		return experimentalMatches;
 	}
-	
-	public double getParentMass(){
+
+	public double getParentMass() {
 		return getAvgMass(seq.toCharArray());
 	}
 
