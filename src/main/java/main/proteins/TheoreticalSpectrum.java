@@ -2,8 +2,8 @@ package main.proteins;
 
 public class TheoreticalSpectrum {
 	private static final double PEAK_DISTANCE_THRESHOLD = 1.0;
-	protected static final double WATER_MASS = 18.0;
-	protected static final double AMONIA_MASS = 17.0;
+	protected static final double WATER_MASS = 18.01528;
+	protected static final double AMONIA_MASS = 17.031;
 
 	public enum PeakType {
 		NOT_USED, NORMAL, LESS_WATER, LESS_AMMONIA, LESS_BOTH
@@ -29,6 +29,7 @@ public class TheoreticalSpectrum {
 	protected boolean yLessWaterUsed[];
 	protected boolean yLessAmmoniaUsed[];
 	protected boolean yLessBothUsed[];
+	private boolean[] peaksMatched;
 
 	public TheoreticalSpectrum(String seq) {
 		this.seq = seq;
@@ -270,8 +271,8 @@ public class TheoreticalSpectrum {
 		double theoreticalMatches = percentageTheoreticalPeaksMatched();
 		double experimentalPeaksMatched = percentageExperimentalPeaksMatched(peaks);
 
-		return ((0.10) * experimentalMatches + (0.45) * theoreticalMatches)
-				+ (0.45) * experimentalPeaksMatched;
+		return ((0.0) * experimentalMatches + (0.0) * theoreticalMatches)
+				+ (1.0) * experimentalPeaksMatched;
 
 	}
 
@@ -306,10 +307,13 @@ public class TheoreticalSpectrum {
 	private double percentageExperimentalPeaksMatched(double[] peaks) {
 		resetUsed(seq);
 		int numPeaksMatched = 0;
+		peaksMatched = new boolean[peaks.length];
 		for (int i = 0; i < peaks.length; i++) {
 			double closestPeak = findClosestTheoreticalPeak(peaks[i]);
-			if (closestPeak > 0.0)
+			if (closestPeak > 0.0){
 				numPeaksMatched++;
+				peaksMatched[i] = true;
+			}
 		}
 		double experimentalPeaksMatched = ((double) numPeaksMatched)
 				/ ((double) peaks.length);
