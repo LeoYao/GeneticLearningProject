@@ -11,11 +11,13 @@ import main.geneticAlgorithm.Protein;
 import main.geneticAlgorithm.ProteinDatabase;
 import main.geneticAlgorithm.ProteinMutator;
 import main.proteins.ExperimentalSpectrum;
+import main.proteins.TheoreticalSpectrum;
 
 public class ProteinDatabaseGeneticSearch {
-	private Protein[] population;
+	private List<Protein> population;
 	private List<Protein> survivors;
 	private int populationSize;
+	private int populationActualSize;
 	private int maxGeneration;
 	private int maxMutationTimes = 5;
 	private ExperimentalSpectrum es;
@@ -29,6 +31,8 @@ public class ProteinDatabaseGeneticSearch {
 
 	private int fitnessComputingConcurrencyDegree = 10;
 	private int mutationConcurrencyDegree = 10;
+	private double parentMassThreshold = 500.0;
+	private double parentMass;
 
 	class ProteinFitnessComparator implements Comparator<Protein> {
 		public int compare(Protein e1, Protein e2) {
@@ -37,12 +41,14 @@ public class ProteinDatabaseGeneticSearch {
 	}
 
 	public ProteinDatabaseGeneticSearch() throws InterruptedException, TimeoutException {
-		populationSize = 500;
-		maxGeneration = 50;
+		populationSize = 1000;
+		maxGeneration = 500;
 
-		es = new ExperimentalSpectrum("test.spectra");
-		es.setIntensityThreshold(10);
-		population = new Protein[populationSize];
+		es = new ExperimentalSpectrum("test.spectra2");
+		es.setIntensityThreshold(100);
+		parentMass = es.getParentMass();
+
+		population = new ArrayList<Protein>(populationSize);
 
 		createInitialPopulation();
 	}
@@ -59,40 +65,54 @@ public class ProteinDatabaseGeneticSearch {
 			data.setExperimental(es);
 		}
 
-		runInitialFitnessCalculations(database);
-
-		Collections.sort(database, new ProteinFitnessComparator());
-
-		population = new Protein[populationSize];
-
-		for (int i = 0; i < populationSize; i++)
+		List<Protein> candidates = new ArrayList<Protein>();
+		for (Protein p : database)
 		{
-			population[i] = database.get(i);
+			TheoreticalSpectrum theoreticalSpectrum = new TheoreticalSpectrum(p.getAminoAcidsequence());
+			if (Math.abs(parentMass - theoreticalSpectrum.getParentMass()) <= parentMassThreshold) {
+				candidates.add(p);
+			}
+		}
+
+		runInitialFitnessCalculations(candidates);
+
+		Collections.sort(candidates, new ProteinFitnessComparator());
+		debug(candidates, 0);
+
+
+		population = new ArrayList<Protein>(populationSize);
+
+		populationActualSize = 0;
+		for (Protein p : candidates)
+		{
+			population.add(p);
+			populationActualSize++;
+			if (populationActualSize == populationSize)
+			{
+				break;
+			}
 		}
 	}
 
-	private void runFitnessCalculations(Protein[] proteins) throws InterruptedException, TimeoutException {
+	private void runFitnessCalculations(List<Protein> proteins) throws InterruptedException, TimeoutException {
 		ExecutorService executor = Executors.newFixedThreadPool(fitnessComputingConcurrencyDegree);
-		for (int i = 0; i < proteins.length; i++) {
-			if (proteins[i] != null) {
-				executor.submit(new FitnessCalculation(proteins[i]));
-			} else {
-				System.out.println("WTF? " + i);
-			}
+		for (Protein protein : proteins) {
+			executor.submit(new FitnessCalculation(protein));
 		}
 
 		executor.shutdown();
 
 		boolean timeout = !executor.awaitTermination(fitnessComputingTimeout, TimeUnit.SECONDS);
 
+		/*
 		if (!timeout)
 		{
-			System.out.println("Done!");
+			System.out.println("runFitnessCalculations Done!");
 		}
 		else
 		{
 			throw new TimeoutException("runFitnessCalculations is timeout");
-		}
+		}*/
 	}
 
 	private void runInitialFitnessCalculations(List<Protein> proteins) throws InterruptedException, TimeoutException {
@@ -105,30 +125,28 @@ public class ProteinDatabaseGeneticSearch {
 
 		boolean timeout = !executor.awaitTermination(initFitnessComputingTimeout, TimeUnit.SECONDS);
 
+		/*
 		if (!timeout)
 		{
-			System.out.println("Done!");
+			System.out.println("runInitialFitnessCalculations Done!");
 		}
 		else
 		{
-			throw new TimeoutException("runFitnessCalculations is timeout");
-		}
+			throw new TimeoutException("runInitialFitnessCalculations is timeout");
+		}*/
 	}
 
-	private void runMutation(Protein[] proteins) throws InterruptedException, TimeoutException {
+	private void runMutation(List<Protein> proteins) throws InterruptedException, TimeoutException {
 		ExecutorService executor = Executors.newFixedThreadPool(mutationConcurrencyDegree);
-		for (int i = 0; i < proteins.length; i++) {
-			if (proteins[i] != null) {
-				executor.submit(new ProteinMutator(proteins[i]));
-			} else {
-				System.out.println("WTF? " + i);
-			}
+		for (Protein protein : proteins) {
+			executor.submit(new ProteinMutator(protein));
 		}
 
 		executor.shutdown();
 
 		boolean timeout = !executor.awaitTermination(mutationTimeout, TimeUnit.SECONDS);
 
+		/*
 		if (!timeout)
 		{
 			System.out.println("Done!");
@@ -137,49 +155,58 @@ public class ProteinDatabaseGeneticSearch {
 		{
 			throw new TimeoutException("runMutation is timeout");
 		}
+		*/
 	}
 
 	public void findProteins() throws InterruptedException, TimeoutException  {
 
 		for (int generation = 0; generation < maxGeneration; generation++) {
-			System.out.println("******* Generation: " + generation
-					+ "************");
+			if (generation % 50 == 0) {
+				System.out.println("******* Generation: " + generation
+						+ "************");
+			}
 			runFitnessCalculations(population);
 
 			//debugPopulation();
 			survivors = cullPopulation(population);
-			debugSurvivors();
+			//debugSurvivors();
 			population = breed(survivors);
 		}
+		runFitnessCalculations(population);
+		survivors = cullPopulation(population);
+		debug(survivors, 50);
 	}
 
-	private void debugPopulation() {
-		// XXX for debugging only
-		for (int i = 0; i < populationSize; i++) {
-			System.out.println("Member: "
-					+ population[i].getAminoAcidsequence() + " score: "
-					+ population[i].getFitness() + " mutation times: " + population[i].getMutationTimes());
-		}
-	}
-
-	private void debugSurvivors() {
-		// XXX for debugging only
+	private void debug(List<Protein> proteins, int topK)
+	{
 		int i = 0;
-		for (Protein p : survivors) {
-			if (i++ < 10)
+		for (Protein p : proteins) {
+			i++;
+			if (topK == 0 || i <= topK)
 			{
-				System.out.println("Member: "
+				System.out.println(i + ": Member: "
 						+ p.getAminoAcidsequence() + " score: "
 						+ p.getFitness() + " mutation times: " + p.getMutationTimes());
 			}
+
 		}
 	}
+	private void debugPopulation() {
 
-	private Protein[] breed(List<Protein> survivors) throws TimeoutException, InterruptedException {
+		debug(population, 0);
+	}
+
+	private void debugSurvivors() {
+		debug(survivors, 10);
+	}
+
+	private List<Protein> breed(List<Protein> survivors) throws TimeoutException, InterruptedException {
+		population = new ArrayList<Protein>(populationSize);
+
 		int survivorsCnt = survivors.size();
 		for (int i = 0; i < populationSize; i++)
 		{
-			population[i] = survivors.get(i % survivorsCnt).clone();
+			population.add(survivors.get(i % survivorsCnt).clone());
 		}
 
 		runMutation(population);
@@ -187,12 +214,12 @@ public class ProteinDatabaseGeneticSearch {
 		return population;
 	}
 
-	private List<Protein> cullPopulation(Protein[] pop) {
+	private List<Protein> cullPopulation(List<Protein> pop) {
 
 		int suvivorNum = Math.max((int) (populationSize * suvivorRatio), minSuvivorNum);
 
 		List<Protein> tmpSuvivors = new ArrayList<Protein>(suvivorNum);
-		int totalNum = pop.length;
+		int totalNum = pop.size();
 		if (survivors != null)
 		{
 			totalNum += survivors.size();
@@ -235,6 +262,8 @@ public class ProteinDatabaseGeneticSearch {
 
 		ProteinDatabaseGeneticSearch gmf = new ProteinDatabaseGeneticSearch();
 		gmf.findProteins();
+
+
 	}
 
 }

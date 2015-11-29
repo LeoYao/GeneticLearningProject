@@ -273,7 +273,6 @@ public class TheoreticalSpectrum {
 
 		return ((0.0) * experimentalMatches + (0.0) * theoreticalMatches)
 				+ (1.0) * experimentalPeaksMatched;
-
 	}
 
 	private double percentageTheoreticalPeaksMatched() {

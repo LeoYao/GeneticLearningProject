@@ -30,7 +30,8 @@ public class ProteinMutator implements Runnable {
         char originalAminoAcidChar = originalSeq.charAt(mutatePos);
 
         //Make sure new and old is different
-        while(originalAminoAcidChar == newAminoAcidChar)
+        while(originalAminoAcidChar == newAminoAcidChar || (originalAminoAcidChar == 'I' && newAminoAcidChar =='L')
+                || (originalAminoAcidChar == 'L' && newAminoAcidChar == 'I'))
         {
             newAminoAcidChar = RandomAminoAcidGenerator.generate();
         }
