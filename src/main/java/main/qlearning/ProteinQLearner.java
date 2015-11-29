@@ -17,6 +17,7 @@ public class ProteinQLearner implements Runnable {
 	private Map<String, List<Transition>> transitions;
 	private Transition previousTransition;
 	private ExperimentalSpectrum experimental;
+	private TheoreticalSpectrum theoretical;
 	private double fitness;
 	private int maxIterations;
 
@@ -30,6 +31,7 @@ public class ProteinQLearner implements Runnable {
 		this.setOriginalSequence(seq);
 		transitions = new HashMap<String, List<Transition>>();
 		transitions.put(seq, new ArrayList<Transition>());
+		theoretical = new TheoreticalSpectrum(aminoAcidsequence);
 	}
 
 	public ProteinQLearner() {
@@ -128,9 +130,9 @@ public class ProteinQLearner implements Runnable {
 
 	public void scoreSequence() {
 		try {
-			TheoreticalSpectrum ts = new TheoreticalSpectrum(aminoAcidsequence);
-			ts.calculate();
-			fitness = ts.scoreAllPeaks(experimental.getMass());
+			theoretical = new TheoreticalSpectrum(aminoAcidsequence);
+			theoretical.calculate();
+			fitness = theoretical.scoreAllPeaks(experimental.getMass());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -171,6 +173,11 @@ public class ProteinQLearner implements Runnable {
 	public void setOriginalSequence(String originalSequence) {
 		this.originalSequence = originalSequence;
 		transitions.put(originalSequence, new ArrayList<Transition>());
+	}
+	
+	public double getParentMass(){
+		theoretical = new TheoreticalSpectrum(aminoAcidsequence);
+		return theoretical.getParentMass();
 	}
 
 }

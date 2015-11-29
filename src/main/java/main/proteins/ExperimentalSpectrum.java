@@ -11,6 +11,7 @@ public class ExperimentalSpectrum {
 	protected double mass[];
 	protected int intensities[];
 	private int intensityThreshold;
+	private double parentMass;
 
 	public ExperimentalSpectrum(String spectrumFile) {
 		// FIXME implement a better spectrum parser here
@@ -27,7 +28,9 @@ public class ExperimentalSpectrum {
 			Scanner scan = new Scanner(file);
 			scan.nextLine();
 			scan.nextLine();
-			scan.nextLine();
+			String parentMassLine = scan.nextLine();
+			String[] parentColumns = parentMassLine.split("\\s+");
+			parentMass = new Double(parentColumns[0]);
 			while (scan.hasNext()) {
 				String line = scan.nextLine();
 				String[] columns = line.split("\\s+");
@@ -78,4 +81,19 @@ public class ExperimentalSpectrum {
 		this.intensityThreshold = intensityThreshold;
 	}
 
+	public String toString(){
+		String ret = "";
+		for(int i = 0; i < mass.length; i++){
+			ret += String.valueOf(mass[i]) + ", ";
+		}
+		return ret;
+	}
+
+	public double getParentMass() {
+		return parentMass;
+	}
+
+	public void setParentMass(double parentMass) {
+		this.parentMass = parentMass;
+	}
 }

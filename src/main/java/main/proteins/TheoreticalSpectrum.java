@@ -1,7 +1,7 @@
 package main.proteins;
 
-
 public class TheoreticalSpectrum {
+	private static final double PEAK_DISTANCE_THRESHOLD = 1.0;
 	protected static final double WATER_MASS = 18.0;
 	protected static final double AMONIA_MASS = 17.0;
 
@@ -20,8 +20,15 @@ public class TheoreticalSpectrum {
 	protected TheoreticalSpectralPeak yLessAmmonia[];
 	protected TheoreticalSpectralPeak yLessBoth[];
 
-	protected PeakType bPeaksUsedForScoring[];
-	protected PeakType yPeaksUsedForScoring[];
+	protected boolean bUsed[];
+	protected boolean bLessWaterUsed[];
+	protected boolean bLessAmmoniaUsed[];
+	protected boolean bLessBothUsed[];
+
+	protected boolean yUsed[];
+	protected boolean yLessWaterUsed[];
+	protected boolean yLessAmmoniaUsed[];
+	protected boolean yLessBothUsed[];
 
 	public TheoreticalSpectrum(String seq) {
 		this.seq = seq;
@@ -36,12 +43,30 @@ public class TheoreticalSpectrum {
 		yLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 1];
 		yLessBoth = new TheoreticalSpectralPeak[seq.length() - 1];
 
-		bPeaksUsedForScoring = new PeakType[seq.length() - 1];
-		yPeaksUsedForScoring = new PeakType[seq.length() - 1];
-		
+		bUsed = new boolean[seq.length() - 1];
+		bLessWaterUsed = new boolean[seq.length() - 1];
+		bLessAmmoniaUsed = new boolean[seq.length() - 1];
+		bLessBothUsed = new boolean[seq.length() - 1];
+
+		yUsed = new boolean[seq.length() - 1];
+		yLessWaterUsed = new boolean[seq.length() - 1];
+		yLessAmmoniaUsed = new boolean[seq.length() - 1];
+		yLessBothUsed = new boolean[seq.length() - 1];
+
+		resetUsed(seq);
+	}
+
+	private void resetUsed(String seq) {
 		for (int i = 0; i < seq.length() - 1; i++) {
-			bPeaksUsedForScoring[i] = PeakType.NOT_USED;
-			yPeaksUsedForScoring[i] = PeakType.NOT_USED;
+			bUsed[i] = false;
+			bLessWaterUsed[i] = false;
+			bLessAmmoniaUsed[i] = false;
+			bLessBothUsed[i] = false;
+
+			yUsed[i] = false;
+			yLessWaterUsed[i] = false;
+			yLessAmmoniaUsed[i] = false;
+			yLessBothUsed[i] = false;
 		}
 	}
 
@@ -127,7 +152,7 @@ public class TheoreticalSpectrum {
 		for (int i = 0; i < seq.length() - 1; i++) {
 
 			if (Math.abs(b[i].getAvg() - experimentalPeak) < distance
-					&& bPeaksUsedForScoring[i] == PeakType.NOT_USED) {
+					&& bUsed[i] == false) {
 				closestMatch = b[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
 				closestPeakB = true;
@@ -136,7 +161,7 @@ public class TheoreticalSpectrum {
 			}
 
 			if (Math.abs(bLessWater[i].getAvg() - experimentalPeak) < distance
-					&& bPeaksUsedForScoring[i] == PeakType.NOT_USED) {
+					&& bLessWaterUsed[i] == false) {
 				closestMatch = bLessWater[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
 				closestPeakB = true;
@@ -145,7 +170,7 @@ public class TheoreticalSpectrum {
 			}
 
 			if (Math.abs(bLessAmmonia[i].getAvg() - experimentalPeak) < distance
-					&& bPeaksUsedForScoring[i] == PeakType.NOT_USED) {
+					&& bUsed[i] == false) {
 				closestMatch = bLessAmmonia[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
 				closestPeakB = true;
@@ -154,7 +179,7 @@ public class TheoreticalSpectrum {
 			}
 
 			if (Math.abs(bLessBoth[i].getAvg() - experimentalPeak) < distance
-					&& bPeaksUsedForScoring[i] == PeakType.NOT_USED) {
+					&& bUsed[i] == false) {
 				closestMatch = bLessBoth[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
 				closestPeakB = true;
@@ -163,47 +188,68 @@ public class TheoreticalSpectrum {
 			}
 
 			if (Math.abs(y[i].getAvg() - experimentalPeak) < distance
-					&& yPeaksUsedForScoring[i] == PeakType.NOT_USED) {
+					&& yUsed[i] == false) {
 				closestMatch = y[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakB = false;
 				closestPeakTypeUsed = PeakType.NORMAL;
 				closestPeakUsedI = i;
 			}
 
 			if (Math.abs(yLessWater[i].getAvg() - experimentalPeak) < distance
-					&& yPeaksUsedForScoring[i] == PeakType.NOT_USED) {
+					&& yLessWaterUsed[i] == false) {
 				closestMatch = yLessWater[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakB = false;
 				closestPeakTypeUsed = PeakType.LESS_WATER;
 				closestPeakUsedI = i;
 			}
 
 			if (Math.abs(yLessAmmonia[i].getAvg() - experimentalPeak) < distance
-					&& yPeaksUsedForScoring[i] == PeakType.NOT_USED) {
+					&& yLessAmmoniaUsed[i] == false) {
 				closestMatch = yLessAmmonia[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakB = false;
 				closestPeakTypeUsed = PeakType.LESS_AMMONIA;
 				closestPeakUsedI = i;
 			}
 
 			if (Math.abs(yLessBoth[i].getAvg() - experimentalPeak) < distance
-					&& yPeaksUsedForScoring[i] == PeakType.NOT_USED) {
+					&& yLessBothUsed[i] == false) {
 				closestMatch = yLessBoth[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakB = false;
 				closestPeakTypeUsed = PeakType.LESS_BOTH;
 				closestPeakUsedI = i;
 			}
 		}
 
 		if (closestPeakUsedI != -1) {
-			if (closestPeakB) {
-				bPeaksUsedForScoring[closestPeakUsedI] = closestPeakTypeUsed;
-			} else {
-				yPeaksUsedForScoring[closestPeakUsedI] = closestPeakTypeUsed;
+			if (Math.abs(experimentalPeak - closestMatch) <= PEAK_DISTANCE_THRESHOLD) {
+				if (closestPeakB) {
+					if (closestPeakTypeUsed == PeakType.NORMAL)
+						bUsed[closestPeakUsedI] = true;
+					else if (closestPeakTypeUsed == PeakType.LESS_AMMONIA)
+						bLessAmmoniaUsed[closestPeakUsedI] = true;
+					else if (closestPeakTypeUsed == PeakType.LESS_WATER)
+						bLessWaterUsed[closestPeakUsedI] = true;
+					else if (closestPeakTypeUsed == PeakType.LESS_BOTH)
+						bLessBothUsed[closestPeakUsedI] = true;
+				} else {
+					if (closestPeakTypeUsed == PeakType.NORMAL)
+						yUsed[closestPeakUsedI] = true;
+					else if (closestPeakTypeUsed == PeakType.LESS_AMMONIA)
+						yLessAmmoniaUsed[closestPeakUsedI] = true;
+					else if (closestPeakTypeUsed == PeakType.LESS_WATER)
+						yLessWaterUsed[closestPeakUsedI] = true;
+					else if (closestPeakTypeUsed == PeakType.LESS_BOTH)
+						yLessBothUsed[closestPeakUsedI] = true;
+				}
+				return closestMatch;
 			}
 		}
 
-		return closestMatch;
+		return 0.0;
 	}
 
 	public double scoreSingleExperimentalPeak(double[] peaks, int scorePeakIndex) {
@@ -218,6 +264,32 @@ public class TheoreticalSpectrum {
 
 	public double scoreAllPeaks(double[] peaks) {
 
+		int theoreticalPeaksUsed = 0;
+		for (int i = 0; i < seq.length() - 1; i++) {
+			// check b peaks			
+			if (bUsed[i] == true)
+				theoreticalPeaksUsed++;
+			if (bLessAmmoniaUsed[i] == true)
+				theoreticalPeaksUsed++;
+			if (bLessWaterUsed[i] == true)
+				theoreticalPeaksUsed++;
+			if (bLessBothUsed[i] == true)
+				theoreticalPeaksUsed++;
+			// check y peaks
+			if (yUsed[i] == true)
+				theoreticalPeaksUsed++;
+			if (yLessAmmoniaUsed[i] == true)
+				theoreticalPeaksUsed++;
+			if (yLessWaterUsed[i] == true)
+				theoreticalPeaksUsed++;
+			if (yLessBothUsed[i] == true)
+				theoreticalPeaksUsed++;
+		}
+		int numTheoreticalPeaks = (seq.length() - 1) * 8;
+		double theoreticalMatches = ((double) theoreticalPeaksUsed)
+				/ ((double) numTheoreticalPeaks);
+		
+		resetUsed(seq);
 		double sumOfPeakScores = 0.0;
 		for (int i = 0; i < peaks.length; i++) {
 			double score = scoreSingleExperimentalPeak(peaks, i);
@@ -225,23 +297,12 @@ public class TheoreticalSpectrum {
 		}
 		double experimentalMatches = sumOfPeakScores / ((double) peaks.length);
 
-		int theoreticalPeaksUsed = 0;
-		for (int i = 0; i < seq.length() - 1; i++) {
-			// check b peaks
-			if (bPeaksUsedForScoring[i] != PeakType.NOT_USED) {
-				theoreticalPeaksUsed++;
-			}
-			// check y peaks
-			if (yPeaksUsedForScoring[i] != PeakType.NOT_USED) {
-				theoreticalPeaksUsed++;
-			}
-		}
-		int numTheoreticalPeaks = (seq.length() - 1) * 2;
-		double theoreticalMatches = ((double) theoreticalPeaksUsed)
-				/ ((double) numTheoreticalPeaks);
+		return ((0.25)*experimentalMatches + (0.75)*theoreticalMatches);
 
-		return (experimentalMatches + theoreticalMatches) / 2.0;
-
+	}
+	
+	public double getParentMass(){
+		return getAvgMass(seq.toCharArray());
 	}
 
 }

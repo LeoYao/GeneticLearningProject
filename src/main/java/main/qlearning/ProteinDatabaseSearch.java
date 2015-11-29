@@ -14,6 +14,8 @@ public class ProteinDatabaseSearch {
 	private int numLearners;
 	private int maxIterations;
 	private ExperimentalSpectrum es;
+	private double parentMass;
+	private double parentMassThreshold;
 
 	class ProteinFitnessComparator implements Comparator<ProteinQLearner> {
 
@@ -23,12 +25,14 @@ public class ProteinDatabaseSearch {
 	}
 
 	public ProteinDatabaseSearch() {
-		//numLearners = 50;
-		numLearners = 3;
+		numLearners = 50;
+		// numLearners = 3;
 		maxIterations = 1000;
+		parentMassThreshold = 500.0;
 
 		es = new ExperimentalSpectrum("test.spectra");
-		es.setIntensityThreshold(10);
+		es.setIntensityThreshold(100);
+		parentMass = es.getParentMass();
 
 		initialSearch();
 	}
@@ -42,15 +46,18 @@ public class ProteinDatabaseSearch {
 		ident.parseInput("proteins.fasta");
 		List<ProteinQLearner> database = ident.getDatabase();
 		for (ProteinQLearner data : database) {
-			data.setExperimental(es);
-			data.scoreSequence();
-			data.setK(5);
-			data.setMaxIterations(maxIterations);
 			data.setOriginalSequence(data.getAminoAcidsequence());
+			
+			if (Math.abs(parentMass - data.getParentMass()) <= parentMassThreshold) {	
+				data.setExperimental(es);	
+				data.scoreSequence();
+				data.setK(5);
+				data.setMaxIterations(maxIterations);							
+			}
 		}
 		TreeSet<ProteinQLearner> initialSet = new TreeSet<ProteinQLearner>(
 				new ProteinFitnessComparator());
-//		runFitnessCalculations(database.toArray(new ProteinQLearner[] {}));
+		// runFitnessCalculations(database.toArray(new ProteinQLearner[] {}));
 
 		for (ProteinQLearner data : database) {
 			initialSet.add(data);

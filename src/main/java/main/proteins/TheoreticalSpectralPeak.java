@@ -35,4 +35,8 @@ public class TheoreticalSpectralPeak {
 		this.max = max;
 	}
 	
+	public String toString(){
+		return String.valueOf(avg);
+	}
+	
 }
