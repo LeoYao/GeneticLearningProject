@@ -30,7 +30,7 @@ public class ProteinDatabaseSearch {
 		maxIterations = 1000;
 		parentMassThreshold = 500.0;
 
-		es = new ExperimentalSpectrum("test.spectra");
+		es = new ExperimentalSpectrum("test.spectra2");
 		es.setIntensityThreshold(100);
 		parentMass = es.getParentMass();
 
