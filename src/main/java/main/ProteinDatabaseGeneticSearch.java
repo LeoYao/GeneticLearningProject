@@ -31,7 +31,7 @@ public class ProteinDatabaseGeneticSearch {
 
 	private int fitnessComputingConcurrencyDegree = 10;
 	private int mutationConcurrencyDegree = 10;
-	private double parentMassThreshold = 200.0;
+	private double parentMassThreshold = 500.0;
 	private double parentMass;
 
 	class ProteinFitnessComparator implements Comparator<Protein> {
