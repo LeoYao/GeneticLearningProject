@@ -263,6 +263,8 @@ public class TheoreticalSpectrum {
 	}
 
 	public double scoreAllPeaks(double[] peaks) {
+		
+		//FIXME boolean[] peaksAccountedFor as another scoring component?
 
 		int theoreticalPeaksUsed = 0;
 		for (int i = 0; i < seq.length() - 1; i++) {
