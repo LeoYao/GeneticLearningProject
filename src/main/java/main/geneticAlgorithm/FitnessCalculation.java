@@ -15,9 +15,7 @@ public class FitnessCalculation implements Runnable {
     }
 
     public void run() {
-        TheoreticalSpectrum ts = new TheoreticalSpectrum(protein.getAminoAcidsequence());
-        ts.calculate();
-        protein.setFitness(ts.scoreAllPeaks(protein.getExperimental().getMass()));
+        protein.calcFitness();
     }
 }
 
