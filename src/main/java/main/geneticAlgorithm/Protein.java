@@ -64,13 +64,8 @@ public class Protein {
 	{
 		ts = new TheoreticalSpectrum(getAminoAcidsequence());
 		ts.calculate();
-		double highestScore = 0.0;
-		for (int i = -150; i < 150; i++) {
-			double score = ts.scoreAllPeaks(experimental.getMass(), i);
-			if(score > highestScore)
-				highestScore = score;
-		}
-		setFitness(highestScore);
+		double score = ts.scoreAllPeaks(experimental.getMass(), 0);
+		setFitness(score);
 	}
 
 

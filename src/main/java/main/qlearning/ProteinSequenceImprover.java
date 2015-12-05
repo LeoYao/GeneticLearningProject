@@ -56,9 +56,14 @@ public class ProteinSequenceImprover {
 	}
 
 	public void improveProteinSequence() {
-		ProteinQLearner pql = new ProteinQLearner("YVVDEPHNLLF", 3, 10000);
+		ProteinQLearner pql = new ProteinQLearner("YVVDEPHNLLF", 2, 200000);
+//		ProteinQLearner pql = new ProteinQLearner("YVVDEPHNLLF", 3, 100000);
+//		ProteinQLearner pql = new ProteinQLearner("YVVDEPHNLLF", 3, 50000);
+//		ProteinQLearner pql = new ProteinQLearner("YVVDEPQNLLK", 3, 50000);
+		
 		pql.setExperimental(es);
 		pql.run();
+		pql.runToSolve();
 		System.out.println(pql.getAminoAcidsequence());
 		//runFitnessCalculations(topProteinsInDatabase);
 	}

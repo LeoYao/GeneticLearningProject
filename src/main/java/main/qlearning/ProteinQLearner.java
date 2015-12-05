@@ -19,7 +19,7 @@ public class ProteinQLearner implements Runnable {
 	private Transition previousTransition;
 	private ExperimentalSpectrum experimental;
 	private TheoreticalSpectrum theoretical;
-	private double fitness;
+	private double currentScore;
 	private int maxIterations;
 
 	private double discountFactor = 0.9;
@@ -64,16 +64,19 @@ public class ProteinQLearner implements Runnable {
 	}
 
 	public void setFitness(double f) {
-		fitness = f;
+		currentScore = f;
 	}
 
 	public double getFitness() {
-		return fitness;
+		return currentScore;
 	}
 
 	public void run() {
-		double epsilonReduction = (epsilon) / (double)getMaxIterations();
+		printCurrentBest();
+		double epsilonReduction = (epsilon) / (double) getMaxIterations();
 		for (int i = 0; i < getMaxIterations(); i++) {
+			if ((i % 1000) == 0)
+				System.out.println(i + " iterations...");
 			aminoAcidsequence = getOriginalSequence();
 			previousTransition = null;
 			boolean terminated = false;
@@ -93,14 +96,46 @@ public class ProteinQLearner implements Runnable {
 		}
 	}
 
+	private void printCurrentBest() {
+		double firstScore = scoreSequence();
+		System.out.println("Protein: " + aminoAcidsequence
+				+ " with score: " + firstScore);
+	}
+
+	public void runToSolve() {
+		aminoAcidsequence = getOriginalSequence();
+		boolean terminated = false;
+		int onK = 0;
+		while (!terminated && onK < k) {
+			onK++;
+			List<Transition> transactionsFromThisState = transitions
+					.get(aminoAcidsequence);
+			if (transactionsFromThisState != null
+					&& transactionsFromThisState.size() > 0) {
+				Transition best = transactionsFromThisState.get(0);
+				double bestScore = best.getExpectedReward();
+				for (Transition t : transactionsFromThisState) {
+					if (t.getExpectedReward() > bestScore) {
+						best = t;
+						bestScore = t.getExpectedReward();
+					}
+				}
+				applyAction(best);
+				if (best.isTerminal())
+					terminated = true;
+			} else {
+				terminated = true;
+			}
+		}
+		printCurrentBest();
+	}
+
 	public void takeAction() {
 		boolean terminate = false;
 		String oldSeq = aminoAcidsequence;
 		Transition decision = actionPolicy(epsilon);
 
-		char[] seq = aminoAcidsequence.toCharArray();
-		seq[decision.getMutationPostion()] = decision.getMutationChar();
-		aminoAcidsequence = new String(seq);
+		applyAction(decision);
 
 		List<Transition> possibleActions = transitions.get(oldSeq);
 		double currentReward = DEFAULT_REWARD;
@@ -127,6 +162,12 @@ public class ProteinQLearner implements Runnable {
 		previousTransition = decision;
 	}
 
+	private void applyAction(Transition decision) {
+		char[] seq = aminoAcidsequence.toCharArray();
+		seq[decision.getMutationPostion()] = decision.getMutationChar();
+		aminoAcidsequence = new String(seq);
+	}
+
 	private void addNewAction(Transition decision,
 			List<Transition> possibleActions) {
 		if (possibleActions == null) {
@@ -146,7 +187,6 @@ public class ProteinQLearner implements Runnable {
 	}
 
 	private Transition actionPolicy(double epsilon) {
-		// fixme, randomly do something else
 		if (!transitions.containsKey(aminoAcidsequence)
 				|| transitions.get(aminoAcidsequence).isEmpty()) {
 			List<Transition> newList = new ArrayList<Transition>();
@@ -157,7 +197,7 @@ public class ProteinQLearner implements Runnable {
 			double random = Math.random();
 			List<Transition> transactionsFromThisState = transitions
 					.get(aminoAcidsequence);
-			if (random > epsilon) {				
+			if (random > epsilon) {
 				if (transactionsFromThisState.size() > 0) {
 					Transition best = transactionsFromThisState.get(0);
 					double bestScore = best.getExpectedReward();
@@ -166,6 +206,10 @@ public class ProteinQLearner implements Runnable {
 							best = t;
 							bestScore = t.getExpectedReward();
 						}
+					}
+					if (bestScore <= 0.0) {
+						Transition t = generateRandomTransition(transactionsFromThisState);
+						return t;
 					}
 					return best;
 				} else {
@@ -197,17 +241,18 @@ public class ProteinQLearner implements Runnable {
 		try {
 			theoretical = new TheoreticalSpectrum(aminoAcidsequence);
 			theoretical.calculate();
-			double highestScore = 0.0;
-			for (int i = -150; i < 150; i++) {
-				double tempScore = theoretical.scoreAllPeaks(
-						experimental.getMass(), i);
-				if (tempScore > highestScore)
-					highestScore = tempScore;
-			}
-			score = highestScore;
+			// double highestScore = 0.0;
+			// for (int i = -150; i < 150; i++) {
+			double tempScore = theoretical.scoreAllPeaks(
+					experimental.getMass(), 0);
+			// if (tempScore > highestScore)
+			// highestScore = tempScore;
+			// }
+			score = tempScore;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		currentScore = score;
 		return score;
 	}
 
@@ -220,7 +265,7 @@ public class ProteinQLearner implements Runnable {
 	}
 
 	public String toString() {
-		return String.valueOf(fitness) + ": " + aminoAcidsequence;
+		return String.valueOf(currentScore) + ": " + aminoAcidsequence;
 	}
 
 	public Transition getPreviousTransition() {

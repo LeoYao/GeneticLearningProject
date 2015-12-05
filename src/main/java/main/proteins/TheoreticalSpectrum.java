@@ -1,10 +1,12 @@
 package main.proteins;
 
 public class TheoreticalSpectrum {
-	private static final double PEAK_DISTANCE_THRESHOLD = 1.0;
+//	private static final double PEAK_DISTANCE_THRESHOLD = 1.0;
+	private static final double PEAK_DISTANCE_THRESHOLD = 0.5;
 	protected static final double HYDROGEN_MASS = 1.0;
 	protected static final double WATER_MASS = 18.01528;
 	protected static final double AMONIA_MASS = 17.031;
+	protected static final double CARBON_MONOXIDE_MASS = 27.995;
 
 	public enum PeakType {
 		NOT_USED, NORMAL, LESS_WATER, LESS_AMMONIA, LESS_BOTH
@@ -87,24 +89,25 @@ public class TheoreticalSpectrum {
 			char[] bString = seq.substring(0, i).toCharArray();
 			char[] yString = seq.substring(i, seq.length()).toCharArray();
 			b[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(bString)
-					- HYDROGEN_MASS, 0.0);
+					+ HYDROGEN_MASS, 0.0);
 			bLessWater[i - 1] = new TheoreticalSpectralPeak(0.0,
-					b[i - 1].getAvg() - WATER_MASS - HYDROGEN_MASS, 0.0);
+					b[i - 1].getAvg() - WATER_MASS, 0.0);
 			bLessAmmonia[i - 1] = new TheoreticalSpectralPeak(0.0,
-					b[i - 1].getAvg() - AMONIA_MASS - HYDROGEN_MASS, 0.0);
+					b[i - 1].getAvg() - AMONIA_MASS, 0.0);
 			bLessBoth[i - 1] = new TheoreticalSpectralPeak(0.0,
-					b[i - 1].getAvg() - WATER_MASS - AMONIA_MASS
-							- HYDROGEN_MASS, 0.0);
+					b[i - 1].getAvg() - WATER_MASS - AMONIA_MASS, 0.0);
 
-			y[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(yString),
-					0.0);
+			a[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(bString)
+					- CARBON_MONOXIDE_MASS + HYDROGEN_MASS, 0.0);
+
+			y[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(yString)
+					+ WATER_MASS + HYDROGEN_MASS, 0.0);
 			yLessWater[i - 1] = new TheoreticalSpectralPeak(0.0,
-					y[i - 1].getAvg() - WATER_MASS - HYDROGEN_MASS, 0.0);
+					y[i - 1].getAvg() - WATER_MASS, 0.0);
 			yLessAmmonia[i - 1] = new TheoreticalSpectralPeak(0.0,
-					y[i - 1].getAvg() - AMONIA_MASS - HYDROGEN_MASS, 0.0);
+					y[i - 1].getAvg() - AMONIA_MASS, 0.0);
 			yLessBoth[i - 1] = new TheoreticalSpectralPeak(0.0,
-					y[i - 1].getAvg() - WATER_MASS - AMONIA_MASS
-							- HYDROGEN_MASS, 0.0);
+					y[i - 1].getAvg() - AMONIA_MASS - WATER_MASS, 0.0);
 		}
 	}
 
@@ -156,22 +159,31 @@ public class TheoreticalSpectrum {
 	}
 
 	public double findClosestTheoreticalPeak(double experimentalPeak) {
-		double tolerance = 10.0;
 		double closestMatch = 0.0;
 		double distance = experimentalPeak - closestMatch;
-		boolean closestPeakB = false;
 		boolean closestPeakA = false;
+		boolean closestPeakB = false;
 		PeakType closestPeakTypeUsed = PeakType.NOT_USED;
 		int closestPeakUsedI = -1;
 
 		for (int i = 0; i < seq.length() - 1; i++) {
 
+			if (Math.abs(a[i].getAvg() - experimentalPeak) < distance
+					&& aUsed[i] == false) {
+				closestMatch = a[i].getAvg();
+				distance = Math.abs(experimentalPeak - closestMatch);
+				closestPeakA = true;
+				closestPeakB = false;
+				closestPeakTypeUsed = PeakType.NORMAL;
+				closestPeakUsedI = i;
+			}
+
 			if (Math.abs(b[i].getAvg() - experimentalPeak) < distance
 					&& bUsed[i] == false) {
 				closestMatch = b[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
-				closestPeakB = true;
 				closestPeakA = false;
+				closestPeakB = true;
 				closestPeakTypeUsed = PeakType.NORMAL;
 				closestPeakUsedI = i;
 			}
@@ -180,8 +192,8 @@ public class TheoreticalSpectrum {
 					&& bLessWaterUsed[i] == false) {
 				closestMatch = bLessWater[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
-				closestPeakB = true;
 				closestPeakA = false;
+				closestPeakB = true;
 				closestPeakTypeUsed = PeakType.LESS_WATER;
 				closestPeakUsedI = i;
 			}
@@ -190,8 +202,8 @@ public class TheoreticalSpectrum {
 					&& bUsed[i] == false) {
 				closestMatch = bLessAmmonia[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
-				closestPeakB = true;
 				closestPeakA = false;
+				closestPeakB = true;
 				closestPeakTypeUsed = PeakType.LESS_AMMONIA;
 				closestPeakUsedI = i;
 			}
@@ -201,18 +213,7 @@ public class TheoreticalSpectrum {
 				closestMatch = bLessBoth[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
 				closestPeakB = true;
-				closestPeakA = false;
 				closestPeakTypeUsed = PeakType.LESS_BOTH;
-				closestPeakUsedI = i;
-			}
-
-			if (Math.abs(a[i].getAvg() - experimentalPeak) < distance
-					&& aUsed[i] == false) {
-				closestMatch = a[i].getAvg();
-				distance = Math.abs(experimentalPeak - closestMatch);
-				closestPeakB = false;
-				closestPeakA = true;
-				closestPeakTypeUsed = PeakType.NORMAL;
 				closestPeakUsedI = i;
 			}
 
@@ -220,8 +221,8 @@ public class TheoreticalSpectrum {
 					&& yUsed[i] == false) {
 				closestMatch = y[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
-				closestPeakB = false;
 				closestPeakA = false;
+				closestPeakB = false;
 				closestPeakTypeUsed = PeakType.NORMAL;
 				closestPeakUsedI = i;
 			}
@@ -230,8 +231,8 @@ public class TheoreticalSpectrum {
 					&& yLessWaterUsed[i] == false) {
 				closestMatch = yLessWater[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
-				closestPeakB = false;
 				closestPeakA = false;
+				closestPeakB = false;
 				closestPeakTypeUsed = PeakType.LESS_WATER;
 				closestPeakUsedI = i;
 			}
@@ -240,8 +241,8 @@ public class TheoreticalSpectrum {
 					&& yLessAmmoniaUsed[i] == false) {
 				closestMatch = yLessAmmonia[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
-				closestPeakB = false;
 				closestPeakA = false;
+				closestPeakB = false;
 				closestPeakTypeUsed = PeakType.LESS_AMMONIA;
 				closestPeakUsedI = i;
 			}
@@ -250,8 +251,8 @@ public class TheoreticalSpectrum {
 					&& yLessBothUsed[i] == false) {
 				closestMatch = yLessBoth[i].getAvg();
 				distance = Math.abs(experimentalPeak - closestMatch);
-				closestPeakB = false;
 				closestPeakA = false;
+				closestPeakB = false;
 				closestPeakTypeUsed = PeakType.LESS_BOTH;
 				closestPeakUsedI = i;
 			}
@@ -301,20 +302,15 @@ public class TheoreticalSpectrum {
 
 	public double scoreAllPeaks(double[] peaks, int shift) {
 
-		for (int i = 0; i < seq.length() - 1; i++) {
-			a[i] = new TheoreticalSpectralPeak(0.0, b[i].getAvg()
-					+ (double) shift, 0.0);
-			aUsed[i] = false;
-		}
-
 		// FIXME boolean[] peaksAccountedFor as another scoring component?
 
-		double experimentalMatches = averagePeakScore(peaks);
-		double theoreticalMatches = percentageTheoreticalPeaksMatched();
+		 double experimentalMatches = averagePeakScore(peaks);
+		// double theoreticalMatches = percentageTheoreticalPeaksMatched();
 		double experimentalPeaksMatched = percentageExperimentalPeaksMatched(peaks);
 
-		return ((0.25) * experimentalMatches + (0.0) * theoreticalMatches)
-				+ (0.75) * experimentalPeaksMatched;
+		// return ((0.0) * experimentalMatches + (0.0) * theoreticalMatches)
+		// + (1.0) * experimentalPeaksMatched;
+		return (0.05) * experimentalMatches + (0.95) * experimentalPeaksMatched;
 	}
 
 	private double percentageTheoreticalPeaksMatched() {
@@ -348,12 +344,12 @@ public class TheoreticalSpectrum {
 	private double percentageExperimentalPeaksMatched(double[] peaks) {
 		resetUsed(seq);
 		int numPeaksMatched = 0;
-		peaksMatched = new boolean[peaks.length];
+		setPeaksMatched(new boolean[peaks.length]);
 		for (int i = 0; i < peaks.length; i++) {
 			double closestPeak = findClosestTheoreticalPeak(peaks[i]);
 			if (closestPeak > 0.0) {
 				numPeaksMatched++;
-				peaksMatched[i] = true;
+				getPeaksMatched()[i] = true;
 			}
 		}
 		double experimentalPeaksMatched = ((double) numPeaksMatched)
@@ -374,6 +370,14 @@ public class TheoreticalSpectrum {
 
 	public double getParentMass() {
 		return getAvgMass(seq.toCharArray());
+	}
+
+	public boolean[] getPeaksMatched() {
+		return peaksMatched;
+	}
+
+	public void setPeaksMatched(boolean[] peaksMatched) {
+		this.peaksMatched = peaksMatched;
 	}
 
 }
