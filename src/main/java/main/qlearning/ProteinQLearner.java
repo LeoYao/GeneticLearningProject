@@ -11,6 +11,7 @@ import main.proteins.RandomNumberGenerator;
 import main.proteins.TheoreticalSpectrum;
 
 public class ProteinQLearner implements Runnable {
+	private static final double DEFAULT_REWARD = -0.1;
 	private int k; // num mutations
 	private String aminoAcidsequence;
 	private String originalSequence;
@@ -23,14 +24,16 @@ public class ProteinQLearner implements Runnable {
 
 	private double discountFactor = 0.9;
 	private double learningRate = 0.9;
+	private double epsilon = 0.9;
 
 	public ProteinQLearner(String seq, int k, int maxIterations) {
+		transitions = new HashMap<String, List<Transition>>();
 		this.setMaxIterations(maxIterations);
 		setK(k);
 		this.aminoAcidsequence = seq;
 		this.setOriginalSequence(seq);
-		transitions = new HashMap<String, List<Transition>>();
-		transitions.put(seq, new ArrayList<Transition>());
+
+		// transitions.put(seq, new ArrayList<Transition>());
 		theoretical = new TheoreticalSpectrum(aminoAcidsequence);
 	}
 
@@ -69,45 +72,106 @@ public class ProteinQLearner implements Runnable {
 	}
 
 	public void run() {
+		double epsilonReduction = (epsilon) / (double)getMaxIterations();
 		for (int i = 0; i < getMaxIterations(); i++) {
 			aminoAcidsequence = getOriginalSequence();
+			previousTransition = null;
+			boolean terminated = false;
 			for (int j = 0; j < k; j++) {
 				takeAction();
+				if (previousTransition.isTerminal()) {
+					terminated = true;
+					break;
+				}
 			}
+			if (!terminated) {
+				double score = scoreSequence();
+				previousTransition.setExpectedReward(score);
+				propogateReward(score + DEFAULT_REWARD);
+			}
+			epsilon -= epsilonReduction;
 		}
 	}
 
 	public void takeAction() {
-		Transition decision = actionPolicy();
+		boolean terminate = false;
+		String oldSeq = aminoAcidsequence;
+		Transition decision = actionPolicy(epsilon);
+
+		char[] seq = aminoAcidsequence.toCharArray();
+		seq[decision.getMutationPostion()] = decision.getMutationChar();
+		aminoAcidsequence = new String(seq);
+
+		List<Transition> possibleActions = transitions.get(oldSeq);
+		double currentReward = DEFAULT_REWARD;
 
 		if (!decision.isTerminal()) {
+			if (possibleActions != null && possibleActions.contains(decision)) {
+				currentReward = possibleActions.get(
+						possibleActions.indexOf(decision)).getExpectedReward()
+						+ DEFAULT_REWARD;
+			} else {
+				addNewAction(decision, possibleActions);
+			}
 
 		} else {
 			// this is a terminal state
-			scoreSequence();
+			double score = scoreSequence();
+			if (possibleActions != null && possibleActions.contains(decision)) {
+				currentReward = score;
+			} else {
+				addNewAction(decision, possibleActions);
+			}
+		}
+		propogateReward(currentReward);
+		previousTransition = decision;
+	}
+
+	private void addNewAction(Transition decision,
+			List<Transition> possibleActions) {
+		if (possibleActions == null) {
+			possibleActions = new ArrayList<Transition>();
+			transitions.put(aminoAcidsequence, possibleActions);
+		}
+		possibleActions.add(decision);
+	}
+
+	private void propogateReward(double currentReward) {
+		if (previousTransition != null) {
+			double oldReward = previousTransition.getExpectedReward();
+			double newReward = oldReward + (learningRate) * (discountFactor)
+					* currentReward;
+			previousTransition.setExpectedReward(newReward);
 		}
 	}
 
-	private Transition actionPolicy() {
-		// fixme, randomly do something worse than the best
-		if (!transitions.containsKey(aminoAcidsequence)) {
+	private Transition actionPolicy(double epsilon) {
+		// fixme, randomly do something else
+		if (!transitions.containsKey(aminoAcidsequence)
+				|| transitions.get(aminoAcidsequence).isEmpty()) {
 			List<Transition> newList = new ArrayList<Transition>();
 			transitions.put(aminoAcidsequence, newList);
 			Transition t = generateRandomTransition(newList);
 			return t;
 		} else {
+			double random = Math.random();
 			List<Transition> transactionsFromThisState = transitions
 					.get(aminoAcidsequence);
-			if (transactionsFromThisState.size() > 0) {
-				Transition best = transactionsFromThisState.get(0);
-				double bestScore = best.getExpectedReward();
-				for (Transition t : transactionsFromThisState) {
-					if (t.getExpectedReward() > bestScore) {
-						best = t;
-						bestScore = t.getExpectedReward();
+			if (random > epsilon) {				
+				if (transactionsFromThisState.size() > 0) {
+					Transition best = transactionsFromThisState.get(0);
+					double bestScore = best.getExpectedReward();
+					for (Transition t : transactionsFromThisState) {
+						if (t.getExpectedReward() > bestScore) {
+							best = t;
+							bestScore = t.getExpectedReward();
+						}
 					}
+					return best;
+				} else {
+					Transition t = generateRandomTransition(transactionsFromThisState);
+					return t;
 				}
-				return best;
 			} else {
 				Transition t = generateRandomTransition(transactionsFromThisState);
 				return t;
@@ -128,14 +192,23 @@ public class ProteinQLearner implements Runnable {
 		return t;
 	}
 
-	public void scoreSequence() {
+	public double scoreSequence() {
+		double score = 0.0;
 		try {
 			theoretical = new TheoreticalSpectrum(aminoAcidsequence);
 			theoretical.calculate();
-			fitness = theoretical.scoreAllPeaks(experimental.getMass());
+			double highestScore = 0.0;
+			for (int i = -150; i < 150; i++) {
+				double tempScore = theoretical.scoreAllPeaks(
+						experimental.getMass(), i);
+				if (tempScore > highestScore)
+					highestScore = tempScore;
+			}
+			score = highestScore;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return score;
 	}
 
 	public ExperimentalSpectrum getExperimental() {
@@ -172,10 +245,11 @@ public class ProteinQLearner implements Runnable {
 
 	public void setOriginalSequence(String originalSequence) {
 		this.originalSequence = originalSequence;
-		transitions.put(originalSequence, new ArrayList<Transition>());
+		List<Transition> actions = new ArrayList<Transition>();
+		transitions.put(originalSequence, actions);
 	}
-	
-	public double getParentMass(){
+
+	public double getParentMass() {
 		theoretical = new TheoreticalSpectrum(aminoAcidsequence);
 		return theoretical.getParentMass();
 	}

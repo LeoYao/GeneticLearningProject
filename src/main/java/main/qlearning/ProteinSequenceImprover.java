@@ -8,7 +8,7 @@ import main.geneticAlgorithm.Protein;
 import main.proteins.ExperimentalSpectrum;
 import main.proteins.TheoreticalSpectrum;
 
-public class ProteinDatabaseSearch {
+public class ProteinSequenceImprover {
 	private ProteinQLearner[] topProteinsInDatabase;
 	private int numLearners;
 	private int maxIterations;
@@ -23,8 +23,9 @@ public class ProteinDatabaseSearch {
 		}
 	}
 
-	public ProteinDatabaseSearch() {
-		numLearners = 50;
+	public ProteinSequenceImprover() {
+		//numLearners = 50;
+		numLearners = 1;
 		// numLearners = 3;
 		maxIterations = 1000;
 		parentMassThreshold = 500.0;
@@ -32,44 +33,6 @@ public class ProteinDatabaseSearch {
 		es = new ExperimentalSpectrum("test.spectra3");
 		es.setIntensityThreshold(20);
 		parentMass = es.getParentMass();
-
-		initialSearch();
-	}
-
-	/**
-	 * Get some results from the database that score fairly high without
-	 * mutations.
-	 */
-	private void initialSearch() {
-		ProteinDatabase ident = new ProteinDatabase();
-		ident.parseInput("proteins.fasta");
-		List<ProteinQLearner> database = ident.getDatabase();
-
-		List<ProteinQLearner> candidates = new ArrayList<ProteinQLearner>();
-
-		for (ProteinQLearner data : database) {
-			data.setOriginalSequence(data.getAminoAcidsequence());
-			
-			if (Math.abs(parentMass - data.getParentMass()) <= parentMassThreshold) {	
-				data.setExperimental(es);	
-				data.scoreSequence();
-				data.setK(5);
-				data.setMaxIterations(maxIterations);
-
-				candidates.add(data);
-			}
-		}
-
-		Collections.sort(candidates, new ProteinFitnessComparator());
-
-		topProteinsInDatabase = new ProteinQLearner[numLearners];
-		Iterator<ProteinQLearner> it = candidates.iterator();
-		int onProtein = 0;
-		while (it.hasNext() && onProtein < numLearners) {
-			ProteinQLearner learner = it.next();
-			topProteinsInDatabase[onProtein] = learner;
-			onProtein++;
-		}
 	}
 
 	private void runFitnessCalculations(ProteinQLearner[] proteins) {
@@ -92,8 +55,12 @@ public class ProteinDatabaseSearch {
 		System.out.println("Done!");
 	}
 
-	public void findProteins() {
-		runFitnessCalculations(topProteinsInDatabase);
+	public void improveProteinSequence() {
+		ProteinQLearner pql = new ProteinQLearner("YVVDEPHNLLF", 3, 10000);
+		pql.setExperimental(es);
+		pql.run();
+		System.out.println(pql.getAminoAcidsequence());
+		//runFitnessCalculations(topProteinsInDatabase);
 	}
 
 	private void debugPopulation() {
@@ -109,8 +76,8 @@ public class ProteinDatabaseSearch {
 		// FIXME create a parser for experimental spectrums that returns
 		// double[] = {peak1 mass, peak2 mass, peak3 mass, ...}
 
-		ProteinDatabaseSearch gmf = new ProteinDatabaseSearch();
-		gmf.findProteins();
+		ProteinSequenceImprover gmf = new ProteinSequenceImprover();
+		gmf.improveProteinSequence();
 	}
 
 }

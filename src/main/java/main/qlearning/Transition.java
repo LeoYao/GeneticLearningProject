@@ -46,4 +46,15 @@ public class Transition {
 	public void setTerminal(boolean terminal) {
 		this.terminal = terminal;
 	}
+	
+	public String toString(){
+		return mutationPostion + "->" + mutationChar + " (" + expectedReward + ")";
+	}
+	
+	public boolean sameTransition(Transition other){
+		if(other.getMutationChar() == mutationChar && other.isTerminal() == terminal && other.getMutationPostion() == mutationPostion)
+			return true;
+		return false;
+	}
+	
 }
