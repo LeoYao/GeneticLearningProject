@@ -60,22 +60,17 @@ public class ProteinMutator implements Runnable {
 
     private void refershMutationTimes(boolean samePosition)
     {
-        int pos = protein.getLatestMutatePos();
-        char newChar = protein.getAminoAcidsequence().charAt(pos);
-        char oldChar = protein.getOrigin().getAminoAcidsequence().charAt(pos);
-        if (samePosition)
+        char o[] = protein.getOrigin().getAminoAcidsequence().toCharArray();
+        char n[] = protein.getAminoAcidsequence().toCharArray();
+
+        int k = 0;
+        for (int i = 0; i < o.length; i++)
         {
-            if (newChar == oldChar) //Same position change will never increase mutation times
+            if (o[i] != n[i])
             {
-                protein.setMutationTimes(protein.getMutationTimes() - 1);
+                k++;
             }
         }
-        else
-        {
-            if (newChar != oldChar)
-            {
-                protein.setMutationTimes(protein.getMutationTimes() + 1);
-            }
-        }
+        protein.setMutationTimes(k);
     }
 }
