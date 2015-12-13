@@ -87,7 +87,7 @@ public class TheoreticalSpectrum {
 	public void calculate() {
 		for (int i = 1; i <= seq.length(); i++) {
 			char[] bString = seq.substring(0, i).toCharArray();
-			char[] yString = seq.substring(i, seq.length()).toCharArray();
+			char[] yString = seq.substring(i-1, seq.length()).toCharArray();
 			b[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(bString)
 					+ HYDROGEN_MASS, 0.0);
 			bLessWater[i - 1] = new TheoreticalSpectralPeak(0.0,
