@@ -41,29 +41,29 @@ public class TheoreticalSpectrum {
 	public TheoreticalSpectrum(String seq) {
 		this.seq = seq;
 
-		b = new TheoreticalSpectralPeak[seq.length() - 1];
-		bLessWater = new TheoreticalSpectralPeak[seq.length() - 1];
-		bLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 1];
-		bLessBoth = new TheoreticalSpectralPeak[seq.length() - 1];
+		b = new TheoreticalSpectralPeak[seq.length()];
+		bLessWater = new TheoreticalSpectralPeak[seq.length()];
+		bLessAmmonia = new TheoreticalSpectralPeak[seq.length()];
+		bLessBoth = new TheoreticalSpectralPeak[seq.length()];
 
-		a = new TheoreticalSpectralPeak[seq.length() - 1];
+		a = new TheoreticalSpectralPeak[seq.length()];
 
-		y = new TheoreticalSpectralPeak[seq.length() - 1];
-		yLessWater = new TheoreticalSpectralPeak[seq.length() - 1];
-		yLessAmmonia = new TheoreticalSpectralPeak[seq.length() - 1];
-		yLessBoth = new TheoreticalSpectralPeak[seq.length() - 1];
+		y = new TheoreticalSpectralPeak[seq.length()];
+		yLessWater = new TheoreticalSpectralPeak[seq.length()];
+		yLessAmmonia = new TheoreticalSpectralPeak[seq.length()];
+		yLessBoth = new TheoreticalSpectralPeak[seq.length()];
 
-		bUsed = new boolean[seq.length() - 1];
-		bLessWaterUsed = new boolean[seq.length() - 1];
-		bLessAmmoniaUsed = new boolean[seq.length() - 1];
-		bLessBothUsed = new boolean[seq.length() - 1];
+		bUsed = new boolean[seq.length()];
+		bLessWaterUsed = new boolean[seq.length()];
+		bLessAmmoniaUsed = new boolean[seq.length()];
+		bLessBothUsed = new boolean[seq.length()];
 
-		aUsed = new boolean[seq.length() - 1];
+		aUsed = new boolean[seq.length()];
 
-		yUsed = new boolean[seq.length() - 1];
-		yLessWaterUsed = new boolean[seq.length() - 1];
-		yLessAmmoniaUsed = new boolean[seq.length() - 1];
-		yLessBothUsed = new boolean[seq.length() - 1];
+		yUsed = new boolean[seq.length()];
+		yLessWaterUsed = new boolean[seq.length()];
+		yLessAmmoniaUsed = new boolean[seq.length()];
+		yLessBothUsed = new boolean[seq.length()];
 
 		resetUsed(seq);
 	}
@@ -85,7 +85,7 @@ public class TheoreticalSpectrum {
 	}
 
 	public void calculate() {
-		for (int i = 1; i < seq.length(); i++) {
+		for (int i = 1; i <= seq.length(); i++) {
 			char[] bString = seq.substring(0, i).toCharArray();
 			char[] yString = seq.substring(i, seq.length()).toCharArray();
 			b[i - 1] = new TheoreticalSpectralPeak(0.0, getAvgMass(bString)
@@ -166,7 +166,7 @@ public class TheoreticalSpectrum {
 		PeakType closestPeakTypeUsed = PeakType.NOT_USED;
 		int closestPeakUsedI = -1;
 
-		for (int i = 0; i < seq.length() - 1; i++) {
+		for (int i = 0; i < seq.length(); i++) {
 
 			if (Math.abs(a[i].getAvg() - experimentalPeak) < distance
 					&& aUsed[i] == false) {
